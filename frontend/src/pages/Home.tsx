@@ -1,7 +1,13 @@
+import Hero from "../components/Hero";
+import FeaturedProjects from "../components/FeaturedProjects";
+import AboutSection from "../components/AboutSection";
+
 export default function Home() {
   return (
-    <div className="p-10 text-3xl font-bold text-indigo-400">
-      Home Page
+    <div>
+      <Hero />
+      <FeaturedProjects />
+      <AboutSection />
     </div>
   );
 }

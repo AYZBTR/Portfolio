@@ -1,3 +1,9 @@
+import ContactSection from "../components/ContactSection";
+
 export default function Contact() {
-  return <div className="p-10 text-3xl">Contact Page</div>;
+  return (
+    <div>
+      <ContactSection />
+    </div>
+  );
 }
