@@ -8,7 +8,7 @@ import ScrollProvider from "../contexts/ScrollContext";
 
 function MainLayoutContent() {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const locoScrollRef = useRef<LocomotiveScroll | null>(null);
+  const locoScrollRef = useRef<InstanceType<typeof LocomotiveScroll> | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -147,9 +147,10 @@ function MainLayoutContent() {
         ref={scrollRef}
         className="bg-slate-900 text-white"
       >
-        <ScrollProvider updateScroll={updateScroll}>
-          <Outlet />
-        </ScrollProvider>
+        <ScrollProvider updateScroll={updateScroll} scrollToSection={scrollToSection}>
+  <Outlet />
+</ScrollProvider>
+
       </div>
     </>
   );
