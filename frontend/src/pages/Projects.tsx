@@ -1,3 +1,13 @@
+/* import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 export default function Projects() {
-  return <div className="p-10 text-3xl">Projects Page</div>;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate("/#projects");
+  }, []);
+
+  return null;
 }
+ */

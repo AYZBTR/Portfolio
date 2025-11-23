@@ -1,4 +1,4 @@
-import ContactSection from "../components/ContactSection";
+/* import ContactSection from "../components/ContactSection";
 
 export default function Contact() {
   return (
@@ -7,3 +7,4 @@ export default function Contact() {
     </div>
   );
 }
+ */

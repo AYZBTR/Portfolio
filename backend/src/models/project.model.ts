@@ -22,4 +22,4 @@ const ProjectSchema = new Schema<IProject>(
   { timestamps: true }
 );
 
-export default mongoose.model<IProject>("Project", ProjectSchema);
+export default mongoose.model("Project", ProjectSchema);
