@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import projectRoutes from "./routes/project.routes";
 import authRoutes from "./routes/auth.routes";
 import siteSettingsRoutes from "./routes/siteSettings.routes";
+import uploadRoutes from "./routes/upload.routes";
 
 
 
@@ -18,6 +19,7 @@ app.use("/api/auth", authRoutes);
 
 app.use("/api/projects", projectRoutes);
 app.use("/api/settings", siteSettingsRoutes);
+app.use("/api/uploads", uploadRoutes);
 
 
 const PORT = process.env.PORT || 5000;

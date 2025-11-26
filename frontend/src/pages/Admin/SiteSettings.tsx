@@ -1,5 +1,3 @@
-// src/pages/Admin/SiteSettings.tsx
-
 import { useEffect, useState, type ChangeEvent } from "react";
 import {
   fetchSiteSettings,
@@ -13,6 +11,11 @@ export default function SiteSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // file upload state
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const token = localStorage.getItem("token") || "";
 
@@ -30,6 +33,13 @@ export default function SiteSettingsPage() {
     };
     load();
   }, []);
+
+  // cleanup preview object URL when component unmounts or file changes
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
 
   const handleHeroChange =
     (field: keyof SiteSettings["hero"]) =>
@@ -88,6 +98,56 @@ export default function SiteSettingsPage() {
       });
     };
 
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    // optional: client-side validation (type & size)
+    if (!f.type.startsWith("image/")) {
+      setError("Please select an image file.");
+      return;
+    }
+    if (f.size > 5 * 1024 * 1024) {
+      setError("Image must be smaller than 5MB.");
+      return;
+    }
+
+    // revoke previous preview if any
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setFile(f);
+    setPreviewUrl(URL.createObjectURL(f));
+    setError(null);
+    setSuccess(null);
+  };
+
+  const uploadFileToServer = async (fileToUpload: File) => {
+    const formData = new FormData();
+    formData.append("file", fileToUpload);
+
+    setUploading(true);
+    try {
+      const res = await fetch("/api/uploads", {
+        method: "POST",
+        headers: {
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`Upload failed (${res.status}): ${text}`);
+      }
+
+      const data = await res.json();
+      return data.url as string;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!settings) return;
     setSaving(true);
@@ -95,8 +155,35 @@ export default function SiteSettingsPage() {
     setSuccess(null);
 
     try {
-      const updated = await updateSiteSettings(settings, token);
-      setSettings(updated);
+      let updatedSettings = { ...settings };
+
+      // If a file is selected, upload it first and set heroImageUrl
+      if (file) {
+        try {
+          const uploadedUrl = await uploadFileToServer(file);
+          updatedSettings = {
+            ...updatedSettings,
+            hero: {
+              ...updatedSettings.hero,
+              heroImageUrl: uploadedUrl,
+            },
+          };
+          // clear file & preview after successful upload
+          setFile(null);
+          if (previewUrl) {
+            URL.revokeObjectURL(previewUrl);
+            setPreviewUrl(null);
+          }
+        } catch (uploadErr) {
+          console.error("Upload error:", uploadErr);
+          setError("Image upload failed. Please try again.");
+          setSaving(false);
+          return;
+        }
+      }
+
+      const saved = await updateSiteSettings(updatedSettings, token);
+      setSettings(saved);
       setSuccess("Settings saved successfully.");
     } catch (err) {
       console.error("Failed to save settings", err);
@@ -212,9 +299,67 @@ export default function SiteSettingsPage() {
                   onChange={handleHeroChange("heroImageUrl")}
                 />
                 <p className="text-xs text-slate-400 mt-1">
-                  Later we can hook this up with Cloudinary so you can upload
-                  images directly.
+                  You can paste an image URL or upload an image below.
                 </p>
+              </div>
+
+              {/* Image upload + preview */}
+              <div className="flex items-start gap-4 mt-2">
+                <div className="w-48 h-28 bg-slate-900 border border-slate-700 rounded overflow-hidden flex items-center justify-center">
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt="preview"
+                      className="object-cover w-full h-full"
+                    />
+                  ) : settings.hero.heroImageUrl ? (
+                    // show existing image from settings if present
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={settings.hero.heroImageUrl}
+                      alt="current"
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <span className="text-slate-500 text-sm">No image</span>
+                  )}
+                </div>
+
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="text-sm text-slate-200"
+                  />
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={handleSave}
+                      disabled={saving || uploading}
+                      className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60"
+                    >
+                      {uploading ? "Uploading…" : saving ? "Saving…" : "Save"}
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setFile(null);
+                        if (previewUrl) {
+                          URL.revokeObjectURL(previewUrl);
+                          setPreviewUrl(null);
+                        }
+                        setError(null);
+                        setSuccess(null);
+                      }}
+                      className="px-4 py-2 rounded-md bg-slate-700 hover:bg-slate-600"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-2">
+                    Max size: 5MB. Accepted: images.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -312,10 +457,10 @@ export default function SiteSettingsPage() {
         <div className="mt-8">
           <button
             onClick={handleSave}
-            disabled={saving}
+            disabled={saving || uploading}
             className="px-6 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {saving ? "Saving…" : "Save Changes"}
+            {saving || uploading ? "Saving…" : "Save Changes"}
           </button>
         </div>
       </div>
