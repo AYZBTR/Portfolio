@@ -9,9 +9,48 @@ html::-webkit-scrollbar {
 }
 
 html, body, #root {
-    height: 100%;
     margin: 0;
     padding: 0;
     background-color: #0f172a;
+}
+
+/* Default: overflow hidden for locomotive scroll on home pages */
+html:not(.admin-mode), 
+body:not(.admin-scroll-mode) {
     overflow: hidden;
+    height: 100%;
+}
+
+#root:not(.admin-mode) {
+    overflow: hidden;
+    height: 100%;
+}
+
+/* Admin mode: enable scrolling */
+html.admin-mode,
+body.admin-scroll-mode {
+    overflow: auto !important;
+    height: auto !important;
+    min-height: 100vh !important;
+}
+
+#root.admin-mode {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 100vh !important;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.2s ease-out;
 }

@@ -1,10 +1,8 @@
-// src/contexts/ScrollContext.tsx
-
 import { createContext, useContext, ReactNode } from "react";
 
 interface ScrollContextType {
   updateScroll: () => void;
-  scrollToSection: (id: string) => void;   // <-- ADD THIS
+  scrollToSection: (id: string) => void;
 }
 
 const ScrollContext = createContext<ScrollContextType | undefined>(undefined);
@@ -12,13 +10,13 @@ const ScrollContext = createContext<ScrollContextType | undefined>(undefined);
 interface ScrollProviderProps {
   children: ReactNode;
   updateScroll: () => void;
-  scrollToSection: (id: string) => void;   // <-- ADD THIS
+  scrollToSection: (id: string) => void;
 }
 
 export const ScrollProvider = ({
   children,
   updateScroll,
-  scrollToSection
+  scrollToSection,
 }: ScrollProviderProps) => {
   return (
     <ScrollContext.Provider value={{ updateScroll, scrollToSection }}>
@@ -28,7 +26,7 @@ export const ScrollProvider = ({
 };
 
 export const useScroll = () => {
-  const context = useContext(ScrollContext);
+  const context = useContext<ScrollContextType | undefined>(ScrollContext);
   if (!context) {
     throw new Error("useScroll must be used within a ScrollProvider");
   }

@@ -1,24 +1,36 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
-
-export const authMiddleware = (
+export default function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
-) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1]; // Bearer TOKEN
+) {
+  const authHeader = req.headers.authorization;
 
-    if (!token)
-      return res.status(401).json({ message: "No token, authorization denied" });
+  console.log("Auth header received:", authHeader);
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { id: string };
-
-    (req as any).adminId = decoded.id;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: "Invalid or expired token" });
+  if (!authHeader) {
+    return res.status(401).json({ message: "No authorization header" });
   }
-};
+
+  if (!authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Invalid auth format" });
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Missing token" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    (req as any).user = decoded;
+
+    next();
+  } catch (err) {
+    console.log("JWT verify error:", err);
+    res.status(401).json({ message: "Invalid token" });
+  }
+}

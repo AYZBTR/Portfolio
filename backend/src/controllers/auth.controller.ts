@@ -3,7 +3,12 @@ import Admin from "../models/admin.model";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET is missing in environment variables");
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
 
 export const registerAdmin = async (req: Request, res: Response) => {
   try {

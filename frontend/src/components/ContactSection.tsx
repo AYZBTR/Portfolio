@@ -1,12 +1,16 @@
-export default function ContactSection() {
-  return (
-    <section className="px-10 md:px-20 py-24">
-      <h2 className="text-3xl md:text-4xl font-bold mb-6">Contact Me</h2>
+// src/components/ContactSection.tsx
+import type { ContactSettings } from "../services/settingsApi";
+import type { HeroSettings } from "../services/settingsApi";
 
-      <p className="text-gray-300 max-w-2xl mb-10">
-        Have an opportunity, collaboration idea, or just want to say hi?  
-        Feel free to send me a message — I respond quickly.
-      </p>
+
+interface ContactProps {
+  contact: ContactSettings;
+}
+
+export default function ContactSection({ contact }: ContactProps) {
+  return (
+    <section id="contact" data-scroll-section className="px-10 md:px-20 py-24">
+      <h2 className="text-3xl md:text-4xl font-bold mb-6">Contact Me</h2>
 
       <form className="max-w-xl space-y-6">
         <input

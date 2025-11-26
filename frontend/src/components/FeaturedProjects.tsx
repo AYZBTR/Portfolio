@@ -20,12 +20,15 @@ const FeaturedProjects = () => {
   if (loading) return <p className="text-white">Loading projects...</p>;
 
   return (
-    // FIX: Replaced max-w-6xl mx-auto with the specific padding classes
-    // from AboutSection.tsx: px-10 md:px-20
-    <section className="px-10 md:px-20 py-20"> 
+    <section
+      id="projects"
+      data-scroll-section
+      className="px-10 md:px-20 py-20"
+    >
       <h2 className="text-3xl font-bold mb-6">Featured Projects</h2>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
         {projects.map((proj) => (
           <div
             key={proj._id}

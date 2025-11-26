@@ -26,16 +26,25 @@ export default function Dashboard() {
 
   return (
     <div className="p-8 min-h-screen bg-[#0d1117] text-white">
-
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Admin Dashboard</h1>
 
-        <Link
-          to="/admin/create"
-          className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition font-semibold"
-        >
-          + Add New Project
-        </Link>
+        {/* Right-side controls: Settings button in front of Add New Project */}
+        <div className="flex items-center gap-4">
+          <Link
+            to="/admin/settings"
+            className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition font-semibold"
+          >
+            ⚙️ Settings
+          </Link>
+
+          <Link
+            to="/admin/create"
+            className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition font-semibold"
+          >
+            + Add New Project
+          </Link>
+        </div>
       </div>
 
       <div className="space-y-6">
