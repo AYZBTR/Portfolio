@@ -2,8 +2,10 @@ import { useEffect, useState, type ChangeEvent } from "react";
 import {
   fetchSiteSettings,
   updateSiteSettings,
+  uploadImage,
 } from "../../services/settingsApi";
 import type { SiteSettings } from "../../services/settingsApi";
+import ImageCropper from "../../components/ImageCropper";
 
 export default function SiteSettingsPage() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -12,10 +14,15 @@ export default function SiteSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // file upload state
+  // file upload + crop state
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+
+  // cropper states
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [showCropper, setShowCropper] = useState(false);
+  const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
   const token = localStorage.getItem("token") || "";
 
@@ -38,8 +45,9 @@ export default function SiteSettingsPage() {
   useEffect(() => {
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
+      if (cropSrc) URL.revokeObjectURL(cropSrc);
     };
-  }, [previewUrl]);
+  }, [previewUrl, cropSrc]);
 
   const handleHeroChange =
     (field: keyof SiteSettings["hero"]) =>
@@ -98,6 +106,7 @@ export default function SiteSettingsPage() {
       });
     };
 
+  // when user selects a file, open the cropper modal (don't set `file` yet)
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files && e.target.files[0];
     if (!f) return;
@@ -106,43 +115,50 @@ export default function SiteSettingsPage() {
       setError("Please select an image file.");
       return;
     }
-    if (f.size > 5 * 1024 * 1024) {
-      setError("Image must be smaller than 5MB.");
+    if (f.size > 10 * 1024 * 1024) {
+      setError("Image must be smaller than 10MB.");
       return;
     }
 
-    // revoke previous preview if any
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+    // prepare cropper
+    if (cropSrc) {
+      URL.revokeObjectURL(cropSrc);
+      setCropSrc(null);
     }
-
-    setFile(f);
-    setPreviewUrl(URL.createObjectURL(f));
+    const src = URL.createObjectURL(f);
+    setSelectedFileName(f.name || "cropped.png");
+    setCropSrc(src);
+    setShowCropper(true);
     setError(null);
     setSuccess(null);
   };
 
-  const uploadFileToServer = async (fileToUpload: File) => {
-    const formData = new FormData();
-    formData.append("file", fileToUpload);
+  // called when cropper returns the cropped blob
+  const handleCropComplete = async (blob: Blob) => {
+    const croppedFile = new File([blob], selectedFileName || "cropped.png", {
+      type: blob.type,
+    });
+    setFile(croppedFile);
 
+    // set preview (revoke previous preview if any)
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    const url = URL.createObjectURL(croppedFile);
+    setPreviewUrl(url);
+
+    // cleanup crop src
+    if (cropSrc) {
+      URL.revokeObjectURL(cropSrc);
+      setCropSrc(null);
+    }
+    setShowCropper(false);
+  };
+
+  const uploadFileToServer = async (fileToUpload: File) => {
     setUploading(true);
     try {
-      const res = await fetch("/api/uploads", {
-        method: "POST",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const text = await res.text().catch(() => "");
-        throw new Error(`Upload failed (${res.status}): ${text}`);
-      }
-
-      const data = await res.json();
-      return data.url as string;
+      // use the shared service (axios) helper - it uses api baseURL/interceptors
+      const url = await uploadImage(fileToUpload, token);
+      return url;
     } finally {
       setUploading(false);
     }
@@ -157,7 +173,7 @@ export default function SiteSettingsPage() {
     try {
       let updatedSettings = { ...settings };
 
-      // If a file is selected, upload it first and set heroImageUrl
+      // If a (cropped) file is selected, upload it first and set heroImageUrl
       if (file) {
         try {
           const uploadedUrl = await uploadFileToServer(file);
@@ -230,6 +246,22 @@ export default function SiteSettingsPage() {
           <div className="mb-4 rounded-lg bg-emerald-900/40 border border-emerald-700 px-4 py-2 text-sm text-emerald-200">
             {success}
           </div>
+        )}
+
+        {/* Cropper modal */}
+        {showCropper && cropSrc && (
+          <ImageCropper
+            src={cropSrc}
+            aspect={16 / 9}
+            onCancel={() => {
+              setShowCropper(false);
+              if (cropSrc) {
+                URL.revokeObjectURL(cropSrc);
+                setCropSrc(null);
+              }
+            }}
+            onComplete={handleCropComplete}
+          />
         )}
 
         <div className="space-y-8">
@@ -357,7 +389,7 @@ export default function SiteSettingsPage() {
                     </button>
                   </div>
                   <p className="text-xs text-slate-400 mt-2">
-                    Max size: 5MB. Accepted: images.
+                    Max size: 10MB. Accepted: images.
                   </p>
                 </div>
               </div>
