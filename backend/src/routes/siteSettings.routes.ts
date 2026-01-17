@@ -4,7 +4,7 @@ import { SiteSettings } from "../models/siteSettings.model";
 
 const router = Router();
 
-// GET SETTINGS
+// GET SETTINGS (public)
 router.get("/", async (req, res) => {
   try {
     let settings = await SiteSettings.findOne();
@@ -20,8 +20,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-// UPDATE SETTINGS (ADMIN)
-router.put("/", authMiddleware, async (req, res) => {
+// UPDATE SETTINGS (ADMIN) - now using Clerk
+router. put("/", authMiddleware, async (req, res) => {
   try {
     const data = req.body;
 
@@ -29,8 +29,8 @@ router.put("/", authMiddleware, async (req, res) => {
     if (!settings) settings = new SiteSettings();
 
     settings.hero = { ...settings.hero, ...data.hero };
-    settings.about = { ...settings.about, ...data.about };
-    settings.contact = { ...settings.contact, ...data.contact };
+    settings.about = { ...settings.about, ... data.about };
+    settings. contact = { ...settings.contact, ... data.contact };
 
     await settings.save();
     res.json(settings);

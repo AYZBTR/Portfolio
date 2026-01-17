@@ -6,6 +6,7 @@ import {
 } from "../../services/settingsApi";
 import type { SiteSettings } from "../../services/settingsApi";
 import ImageCropper from "../../components/ImageCropper";
+import { Plus, X } from "lucide-react";
 
 export default function SiteSettingsPage() {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -52,22 +53,22 @@ export default function SiteSettingsPage() {
   const handleHeroChange =
     (field: keyof SiteSettings["hero"]) =>
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      if (!settings) return;
+      if (! settings) return;
       setSettings({
         ...settings,
         hero: {
           ...settings.hero,
-          [field]: e.target.value,
+          [field]: e. target.value,
         },
       });
     };
 
   const handleAboutChange =
-    (field: keyof SiteSettings["about"]) =>
+    (field:  keyof SiteSettings["about"]) =>
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (!settings) return;
 
-      // Special: skills as comma-separated
+      // Special:  skills as comma-separated
       if (field === "skills") {
         const value = e.target.value;
         const skillsArray = value
@@ -86,7 +87,7 @@ export default function SiteSettingsPage() {
         setSettings({
           ...settings,
           about: {
-            ...settings.about,
+            ... settings.about,
             [field]: e.target.value,
           },
         });
@@ -94,7 +95,7 @@ export default function SiteSettingsPage() {
     };
 
   const handleContactChange =
-    (field: keyof SiteSettings["contact"]) =>
+    (field: 'email' | 'location') =>
     (e: ChangeEvent<HTMLInputElement>) => {
       if (!settings) return;
       setSettings({
@@ -106,16 +107,56 @@ export default function SiteSettingsPage() {
       });
     };
 
+  // NEW: Social Links handlers
+  const addSocialLink = () => {
+    if (!settings) return;
+    setSettings({
+      ...settings,
+      contact: {
+        ...settings.contact,
+        socialLinks: [
+          ... settings.contact.socialLinks,
+          { platform: "GitHub", url: "" }
+        ],
+      },
+    });
+  };
+
+  const removeSocialLink = (index: number) => {
+    if (!settings) return;
+    const newLinks = settings.contact.socialLinks. filter((_, i) => i !== index);
+    setSettings({
+      ...settings,
+      contact: {
+        ...settings.contact,
+        socialLinks: newLinks,
+      },
+    });
+  };
+
+  const updateSocialLink = (index: number, field: 'platform' | 'url', value:  string) => {
+    if (!settings) return;
+    const newLinks = [...settings.contact.socialLinks];
+    newLinks[index] = { ... newLinks[index], [field]:  value };
+    setSettings({
+      ...settings,
+      contact: {
+        ...settings.contact,
+        socialLinks: newLinks,
+      },
+    });
+  };
+
   // when user selects a file, open the cropper modal (don't set `file` yet)
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files && e.target.files[0];
-    if (!f) return;
+    if (! f) return;
     // optional: client-side validation (type & size)
-    if (!f.type.startsWith("image/")) {
+    if (!f.type. startsWith("image/")) {
       setError("Please select an image file.");
       return;
     }
-    if (f.size > 10 * 1024 * 1024) {
+    if (f. size > 10 * 1024 * 1024) {
       setError("Image must be smaller than 10MB.");
       return;
     }
@@ -126,7 +167,7 @@ export default function SiteSettingsPage() {
       setCropSrc(null);
     }
     const src = URL.createObjectURL(f);
-    setSelectedFileName(f.name || "cropped.png");
+    setSelectedFileName(f.name || "cropped. png");
     setCropSrc(src);
     setShowCropper(true);
     setError(null);
@@ -180,7 +221,7 @@ export default function SiteSettingsPage() {
           updatedSettings = {
             ...updatedSettings,
             hero: {
-              ...updatedSettings.hero,
+              ... updatedSettings.hero,
               heroImageUrl: uploadedUrl,
             },
           };
@@ -217,23 +258,23 @@ export default function SiteSettingsPage() {
     );
   }
 
-  if (!settings) {
+  if (! settings) {
     return (
       <div className="min-h-screen bg-slate-900 text-red-300 flex items-center justify-center pt-16">
-        Could not load site settings.
+        Could not load site settings. 
       </div>
     );
   }
 
-  const skillsAsText = settings.about.skills.join(", ");
+  const skillsAsText = settings.about. skills. join(", ");
 
   return (
     <div className="bg-slate-900 text-slate-100 px-4 py-8 pt-24 pb-16">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Site Settings</h1>
         <p className="text-slate-400 mb-6">
-          Update the content of your landing page. Changes will reflect on the
-          public site.
+          Update the content of your landing page.  Changes will reflect on the
+          public site. 
         </p>
 
         {error && (
@@ -307,7 +348,7 @@ export default function SiteSettingsPage() {
                   </label>
                   <input
                     className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500"
-                    value={settings.hero.primaryCtaLabel}
+                    value={settings. hero.primaryCtaLabel}
                     onChange={handleHeroChange("primaryCtaLabel")}
                   />
                 </div>
@@ -338,15 +379,13 @@ export default function SiteSettingsPage() {
               {/* Image upload + preview */}
               <div className="flex items-start gap-4 mt-2">
                 <div className="w-48 h-28 bg-slate-900 border border-slate-700 rounded overflow-hidden flex items-center justify-center">
-                  {previewUrl ? (
+                  {previewUrl ?  (
                     <img
                       src={previewUrl}
                       alt="preview"
                       className="object-cover w-full h-full"
                     />
                   ) : settings.hero.heroImageUrl ? (
-                    // show existing image from settings if present
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={settings.hero.heroImageUrl}
                       alt="current"
@@ -389,7 +428,7 @@ export default function SiteSettingsPage() {
                     </button>
                   </div>
                   <p className="text-xs text-slate-400 mt-2">
-                    Max size: 10MB. Accepted: images.
+                    Max size: 10MB.  Accepted:  images. 
                   </p>
                 </div>
               </div>
@@ -415,7 +454,7 @@ export default function SiteSettingsPage() {
                 <textarea
                   className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500"
                   rows={4}
-                  value={settings.about.description}
+                  value={settings. about.description}
                   onChange={handleAboutChange("description")}
                 />
               </div>
@@ -433,7 +472,7 @@ export default function SiteSettingsPage() {
             </div>
           </section>
 
-          {/* CONTACT SETTINGS */}
+          {/* CONTACT SETTINGS - WITH DYNAMIC SOCIAL LINKS */}
           <section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-5 shadow-md">
             <h2 className="text-2xl font-semibold mb-4">Contact Section</h2>
 
@@ -456,31 +495,75 @@ export default function SiteSettingsPage() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm mb-1">GitHub</label>
-                <input
-                  className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500"
-                  value={settings.contact.github || ""}
-                  onChange={handleContactChange("github")}
-                />
-              </div>
+              {/* DYNAMIC SOCIAL LINKS - NEW!  */}
+              <div className="border border-indigo-500/30 rounded-xl p-4 bg-indigo-500/5 mt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-sm font-semibold text-slate-200">
+                    Social Links
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addSocialLink}
+                    className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm font-medium flex items-center gap-2 transition-colors"
+                  >
+                    <Plus size={16} />
+                    Add Link
+                  </button>
+                </div>
 
-              <div>
-                <label className="block text-sm mb-1">LinkedIn</label>
-                <input
-                  className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500"
-                  value={settings.contact.linkedin || ""}
-                  onChange={handleContactChange("linkedin")}
-                />
-              </div>
+                <div className="space-y-3">
+                  {settings.contact.socialLinks.map((link, index) => (
+                    <div key={index} className="flex gap-2">
+                      <select
+                        value={link.platform}
+                        onChange={(e) => updateSocialLink(index, 'platform', e.target.value)}
+                        className="px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500 text-sm text-slate-200"
+                      >
+                        <option value="GitHub">GitHub</option>
+                        <option value="LinkedIn">LinkedIn</option>
+                        <option value="Twitter">Twitter / X</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="YouTube">YouTube</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="Discord">Discord</option>
+                        <option value="Telegram">Telegram</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Dev. to">Dev.to</option>
+                        <option value="Dribbble">Dribbble</option>
+                        <option value="Behance">Behance</option>
+                        <option value="Other">Other</option>
+                      </select>
 
-              <div>
-                <label className="block text-sm mb-1">Twitter</label>
-                <input
-                  className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500"
-                  value={settings.contact.twitter || ""}
-                  onChange={handleContactChange("twitter")}
-                />
+                      <input
+                        type="url"
+                        value={link.url}
+                        onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
+                        placeholder="https://..."
+                        className="flex-1 px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500 text-sm text-slate-200"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => removeSocialLink(index)}
+                        className="px-3 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 rounded-lg text-red-400 transition-colors"
+                        title="Remove link"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  ))}
+
+                  {settings.contact.socialLinks.length === 0 && (
+                    <p className="text-slate-500 text-sm text-center py-4">
+                      No social links yet. Click "Add Link" to get started! 
+                    </p>
+                  )}
+                </div>
+
+                <p className="text-xs text-slate-400 mt-3">
+                  💡 Add your social media profiles.  They'll appear in your About and Contact sections! 
+                </p>
               </div>
             </div>
           </section>

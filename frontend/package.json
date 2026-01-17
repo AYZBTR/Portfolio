@@ -10,14 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.59.4",
+    "@emailjs/browser": "^4.4.1",
     "@tailwindcss/vite": "^4.1.17",
     "axios": "^1.13.2",
     "gsap": "^3.13.0",
     "locomotive-scroll": "^4.1.4",
     "lucide-react": "^0.555.0",
+    "mongodb": "^7.0.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-easy-crop": "^5.5.6",
+    "react-icons": "^5.5.0",
     "react-image-crop": "^11.0.10",
     "react-router-dom": "^7.9.6",
     "react-scroll": "^1.9.3",

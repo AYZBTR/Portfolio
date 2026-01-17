@@ -1,75 +1,98 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import api from "../../services/api";
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { getProjectById, updateProject } from "../../services/projectService";
+import { Plus, X, Image as ImageIcon, ArrowLeft } from "lucide-react";
 
 export default function EditProject() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
-
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [tags, setTags] = useState("");
-  const [image, setImage] = useState("");
-  const [github, setGithub] = useState("");
-  const [live, setLive] = useState("");
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    tags: "",
+    imageUrl: "",
+    images: [""],
+    githubUrl: "",
+    liveDemoUrl: "",
+  });
 
-  // fetch once when id changes
   useEffect(() => {
-    const fetchProject = async () => {
-      if (!id) return;
+    const loadProject = async () => {
+      if (! id) return;
 
       try {
-        setLoading(true);
-        const res = await api.get(`/projects/${id}`);
-        const p = res.data;
-
-        setTitle(p.title || "");
-        setDescription(p.description || "");
-        setImage(p.image || "");
-        setGithub(p.github || "");
-        setLive(p.live || "");
-        setTags(Array.isArray(p.tags) ? p.tags.join(", ") : "");
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load project.");
-      } finally {
+        const project = await getProjectById(id);
+        setFormData({
+          title: project.title,
+          description: project.description,
+          tags: project.tags. join(", "),
+          imageUrl: project.imageUrl || "",
+          images: project.images && project.images.length > 0 ? project.images : [""],
+          githubUrl: project. githubUrl || "",
+          liveDemoUrl:  project.liveDemoUrl || "",
+        });
         setLoading(false);
+      } catch (error) {
+        console.error("Failed to load project:", error);
+        alert("Failed to load project");
+        navigate("/admin");
       }
     };
 
-    fetchProject();
-  }, [id]);
+    loadProject();
+  }, [id, navigate]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (index: number, value:  string) => {
+    const newImages = [...formData.images];
+    newImages[index] = value;
+    setFormData({ ...formData, images: newImages });
+  };
+
+  const addImageField = () => {
+    setFormData({ ...formData, images: [...formData.images, ""] });
+  };
+
+  const removeImageField = (index:  number) => {
+    const newImages = formData.images.filter((_, i) => i !== index);
+    setFormData({ ... formData, images: newImages. length > 0 ? newImages :  [""] });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id) return;
+    if (! id) return;
 
     setSaving(true);
-    setError(null);
 
     try {
-      const tagsArray = tags
+      const tagsArray = formData.tags
         .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean);
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== "");
 
-      await api.put(
-        `/projects/${id}`,
-        { title, description, tags: tagsArray, image, github, live },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const validImages = formData.images.filter(img => img.trim() !== "");
 
+      const projectData = {
+        title:  formData.title,
+        description: formData.description,
+        tags: tagsArray,
+        imageUrl: formData.imageUrl,
+        images: validImages,
+        githubUrl: formData.githubUrl,
+        liveDemoUrl: formData.liveDemoUrl,
+      };
+
+      await updateProject(id, projectData);
+      alert("✅ Project updated successfully!");
       navigate("/admin");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to update project.");
+    } catch (error) {
+      console.error("Error updating project:", error);
+      alert("❌ Failed to update project");
     } finally {
       setSaving(false);
     }
@@ -77,94 +100,157 @@ export default function EditProject() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
-        <p className="text-slate-300">Loading project...</p>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-xl">Loading project...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
-      <div className="bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-xl">
-        <h1 className="text-2xl font-bold mb-6">Edit Project</h1>
+    <div className="min-h-screen bg-gray-900 py-12 px-6">
+      <div className="max-w-3xl mx-auto">
+        {/* Back Button */}
+        <button
+          onClick={() => navigate("/admin")}
+          className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-gray-300 transition-colors"
+        >
+          <ArrowLeft size={20} />
+          Back to Dashboard
+        </button>
 
-        {error && (
-          <p className="mb-4 text-red-400 text-sm bg-red-900/40 px-3 py-2 rounded">
-            {error}
-          </p>
-        )}
+        <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700">
+          <h1 className="text-3xl font-bold text-white mb-8">Edit Project</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm mb-1">Title</label>
-            <input
-              className="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Title */}
+            <div>
+              <label className="block text-gray-300 font-medium mb-2">Title</label>
+              <input
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm mb-1">Description</label>
-            <textarea
-              className="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-            />
-          </div>
+            {/* Description */}
+            <div>
+              <label className="block text-gray-300 font-medium mb-2">Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                required
+                rows={6}
+                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus: border-indigo-500 transition-colors resize-none"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm mb-1">
-              Tags{" "}
-              <span className="text-xs text-slate-400">
-                (comma separated: React, Node, MongoDB)
-              </span>
-            </label>
-            <input
-              className="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-            />
-          </div>
+            {/* Tags */}
+            <div>
+              <label className="block text-gray-300 font-medium mb-2">
+                Tags <span className="text-gray-500 text-sm">(comma separated)</span>
+              </label>
+              <input
+                type="text"
+                name="tags"
+                value={formData.tags}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm mb-1">Image URL</label>
-            <input
-              className="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              value={image}
-              onChange={(e) => setImage(e.target.value)}
-            />
-          </div>
+            {/* Main Image */}
+            <div>
+              <label className="block text-gray-300 font-medium mb-2">
+                Main Image URL <span className="text-gray-500 text-sm">(Featured/Thumbnail)</span>
+              </label>
+              <input
+                type="url"
+                name="imageUrl"
+                value={formData.imageUrl}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm mb-1">GitHub URL</label>
-            <input
-              className="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              value={github}
-              onChange={(e) => setGithub(e.target.value)}
-            />
-          </div>
+            {/* Additional Images */}
+            <div className="border border-indigo-500/30 rounded-xl p-6 bg-indigo-500/5">
+              <div className="flex items-center justify-between mb-4">
+                <label className="text-gray-300 font-medium flex items-center gap-2">
+                  <ImageIcon size={20} className="text-indigo-400" />
+                  Additional Images <span className="text-gray-500 text-sm">(Gallery)</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={addImageField}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg text-white text-sm font-medium flex items-center gap-2 transition-colors"
+                >
+                  <Plus size={16} />
+                  Add Image
+                </button>
+              </div>
 
-          <div>
-            <label className="block text-sm mb-1">Live Demo URL</label>
-            <input
-              className="w-full px-3 py-2 rounded bg-slate-900 border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              value={live}
-              onChange={(e) => setLive(e.target.value)}
-            />
-          </div>
+              <div className="space-y-3">
+                {formData.images.map((img, index) => (
+                  <div key={index} className="flex gap-2">
+                    <input
+                      type="url"
+                      value={img}
+                      onChange={(e) => handleImageChange(index, e. target.value)}
+                      className="flex-1 px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                      placeholder={`Image ${index + 1} URL`}
+                    />
+                    {formData.images.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeImageField(index)}
+                        className="px-3 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 rounded-lg text-red-400 transition-colors"
+                      >
+                        <X size={20} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full py-2 rounded bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 font-semibold mt-2"
-          >
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
-        </form>
+            {/* GitHub URL */}
+            <div>
+              <label className="block text-gray-300 font-medium mb-2">GitHub URL</label>
+              <input
+                type="url"
+                name="githubUrl"
+                value={formData.githubUrl}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-indigo-500 transition-colors"
+              />
+            </div>
+
+            {/* Live Demo URL */}
+            <div>
+              <label className="block text-gray-300 font-medium mb-2">Live Demo URL</label>
+              <input
+                type="url"
+                name="liveDemoUrl"
+                value={formData.liveDemoUrl}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus: outline-none focus:border-indigo-500 transition-colors"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={saving}
+              className="w-full px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-700 rounded-xl font-bold text-white shadow-xl shadow-indigo-500/50 transition-all duration-300 transform hover:scale-105 disabled:scale-100 disabled:cursor-not-allowed"
+            >
+              {saving ? "Saving Changes..." : "Save Changes"}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
+import "./config/clerk.config"; // Initialize Clerk
 
 import mongoose from "mongoose";
 import projectRoutes from "./routes/project.routes";
@@ -9,7 +10,9 @@ import authRoutes from "./routes/auth.routes";
 import siteSettingsRoutes from "./routes/siteSettings.routes";
 import uploadRoutes from "./routes/upload.routes";
 
-
+console.log("🔧 Environment check:");
+console.log("CLERK_SECRET_KEY:", process. env.CLERK_SECRET_KEY ?  "✅ Set" : "❌ Missing");
+console.log("ADMIN_EMAIL:", process.env. ADMIN_EMAIL || "❌ Missing");
 
 
 const app = express();

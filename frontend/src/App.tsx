@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import ProjectDetail from "./pages/ProjectDetail";
 import MainLayoutContent from "./layouts/MainLayout";
 import Home from "./pages/Home";
 
@@ -17,7 +17,6 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* ALL ROUTES NOW USE MAINLAYOUT */}
         <Route element={<MainLayoutContent />}>
           {/* 🌍 PUBLIC WEBSITE */}
           <Route path="/" element={<Home />} />
@@ -53,7 +52,6 @@ export default function App() {
             }
           />
 
-          {/* 🛠 SITE SETTINGS */}
           <Route
             path="/admin/settings"
             element={
@@ -62,6 +60,8 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/projects/:id" element={<ProjectDetail />} />
         </Route>
       </Routes>
     </BrowserRouter>

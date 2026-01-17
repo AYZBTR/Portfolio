@@ -1,36 +1,67 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { clerkClient } from "@clerk/clerk-sdk-node";
 
-export default function authMiddleware(
+export default async function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const authHeader = req.headers.authorization;
-
-  console.log("Auth header received:", authHeader);
-
-  if (!authHeader) {
-    return res.status(401).json({ message: "No authorization header" });
-  }
-
-  if (!authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Invalid auth format" });
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ message: "Missing token" });
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-    (req as any).user = decoded;
+    const authHeader = req.headers.authorization;
 
+    console.log("🔐 Auth header received:", authHeader);
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      console.log("❌ No valid auth header");
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+      console.log("❌ No token found");
+      return res.status(401).json({ message: "Missing token" });
+    }
+
+    // Verify the token with Clerk
+    const decoded = await clerkClient.verifyToken(token);
+    
+    if (!decoded || !decoded.sub) {
+      console.log("❌ Invalid token");
+      return res.status(401).json({ message: "Invalid token" });
+    }
+
+    console.log("✅ Token verified, user ID:", decoded.sub);
+
+    // Get user details from Clerk
+    const user = await clerkClient.users.getUser(decoded.sub);
+    const userEmail = user.emailAddresses[0]?.emailAddress;
+    const adminEmail = process.env.ADMIN_EMAIL;
+
+    console.log(`👤 User email: ${userEmail}`);
+    console.log(`🔑 Admin email: ${adminEmail}`);
+
+    if (userEmail !== adminEmail) {
+      console.log(`❌ Access denied for:  ${userEmail}`);
+      return res.status(403).json({ 
+        message: "Forbidden:  Admin access only",
+        userEmail,
+        adminEmail 
+      });
+    }
+
+    console.log(`✅ Admin verified:  ${userEmail}`);
+    
+    // Attach user to request
+    (req as any).user = user;
+    (req as any).auth = decoded;
+    
     next();
-  } catch (err) {
-    console.log("JWT verify error:", err);
-    res.status(401).json({ message: "Invalid token" });
+  } catch (error:  any) {
+    console.error("❌ Auth middleware error:", error. message);
+    return res.status(401).json({ 
+      message: "Authentication failed",
+      error: error. message 
+    });
   }
 }

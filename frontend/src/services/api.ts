@@ -1,18 +1,26 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    // ensure headers object exists (avoids TS errors)
-    config.headers = config.headers || {};
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore - axios headers typing can be narrow in some setups
-    config.headers.Authorization = `Bearer ${token}`;
+// Intercept requests to add Clerk session token
+api. interceptors.request.use(async (config) => {
+  try {
+    // Get Clerk session token
+    const token = await window.Clerk?.session?.getToken();
+    
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+      console.log("✅ Added Clerk token to request");
+    } else {
+      console.warn("⚠️ No Clerk token found");
+    }
+  } catch (error) {
+    console.error("Error getting Clerk token:", error);
   }
+  
   return config;
 });
 

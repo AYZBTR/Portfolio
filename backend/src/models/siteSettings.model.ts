@@ -6,7 +6,7 @@ export interface IHeroSettings {
   subtitle: string;
   primaryCtaLabel: string;
   secondaryCtaLabel: string;
-  heroImageUrl: string;
+  heroImageUrl:  string;
 }
 
 export interface IAboutSettings {
@@ -15,12 +15,16 @@ export interface IAboutSettings {
   skills: string[];
 }
 
+// NEW: Social Link interface
+export interface ISocialLink {
+  platform: string;
+  url: string;
+}
+
 export interface IContactSettings {
   email: string;
   location: string;
-  github?: string;
-  linkedin?: string;
-  twitter?: string;
+  socialLinks:  ISocialLink[];  // NEW! 
 }
 
 export interface ISiteSettings extends Document {
@@ -31,10 +35,10 @@ export interface ISiteSettings extends Document {
 
 const HeroSchema = new Schema<IHeroSettings>({
   name: { type: String, default: "Aayush" },
-  title: { type: String, default: "Full-Stack Developer" },
-  subtitle: {
+  title: { type:  String, default: "Full-Stack Developer" },
+  subtitle:  {
     type: String,
-    default:
+    default: 
       "I specialize in the MERN stack — crafting fast, scalable, and beautifully designed applications with clean architecture.",
   },
   primaryCtaLabel: { type: String, default: "View Projects" },
@@ -43,7 +47,7 @@ const HeroSchema = new Schema<IHeroSettings>({
 });
 
 const AboutSchema = new Schema<IAboutSettings>({
-  headline: { type: String, default: "About Me" },
+  headline: { type:  String, default: "About Me" },
   description: {
     type: String,
     default:
@@ -62,12 +66,16 @@ const AboutSchema = new Schema<IAboutSettings>({
   },
 });
 
+// NEW: Social Link Schema
+const SocialLinkSchema = new Schema<ISocialLink>({
+  platform: { type: String, required:  true },
+  url: { type: String, required: true },
+});
+
 const ContactSchema = new Schema<IContactSettings>({
   email: { type: String, default: "yourmail@example.com" },
   location: { type: String, default: "Your City, Country" },
-  github: { type: String, default: "" },
-  linkedin: { type: String, default: "" },
-  twitter: { type: String, default: "" },
+  socialLinks: { type: [SocialLinkSchema], default: [] },  // NEW!
 });
 
 const SiteSettingsSchema = new Schema<ISiteSettings>(
