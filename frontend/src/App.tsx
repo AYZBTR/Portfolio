@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProjectDetail from "./pages/ProjectDetail";
 import MainLayoutContent from "./layouts/MainLayout";
 import Home from "./pages/Home";
-import NotFound from "./pages/NotFound"; // ⭐ ADD THIS
+import NotFound from "./pages/NotFound";
 import ADMIN_ROUTES from "./config/adminRoutes";
 
 // Admin Pages
