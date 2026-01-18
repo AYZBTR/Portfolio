@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ProjectDetail from "./pages/ProjectDetail";
 import MainLayoutContent from "./layouts/MainLayout";
 import Home from "./pages/Home";
+import NotFound from "./pages/NotFound"; // ⭐ ADD THIS
+import ADMIN_ROUTES from "./config/adminRoutes";
 
 // Admin Pages
 import Login from "./pages/Admin/Login";
@@ -21,12 +23,15 @@ export default function App() {
           {/* 🌍 PUBLIC WEBSITE */}
           <Route path="/" element={<Home />} />
 
+          {/* 📁 PROJECT DETAIL PAGE */}
+          <Route path="/projects/:id" element={<ProjectDetail />} />
+
           {/* 🔐 ADMIN AUTH ROUTE */}
-          <Route path="/admin/login" element={<Login />} />
+          <Route path={ADMIN_ROUTES.LOGIN} element={<Login />} />
 
           {/* 🔒 PROTECTED ADMIN ROUTES */}
           <Route
-            path="/admin"
+            path={ADMIN_ROUTES.BASE}
             element={
               <ProtectedRoute>
                 <Dashboard />
@@ -35,7 +40,7 @@ export default function App() {
           />
 
           <Route
-            path="/admin/create"
+            path={ADMIN_ROUTES.CREATE}
             element={
               <ProtectedRoute>
                 <CreateProject />
@@ -44,7 +49,7 @@ export default function App() {
           />
 
           <Route
-            path="/admin/edit/:id"
+            path={`${ADMIN_ROUTES.BASE}/edit/:id`}
             element={
               <ProtectedRoute>
                 <EditProject />
@@ -53,7 +58,7 @@ export default function App() {
           />
 
           <Route
-            path="/admin/settings"
+            path={ADMIN_ROUTES.SETTINGS}
             element={
               <ProtectedRoute>
                 <SiteSettingsPage />
@@ -61,7 +66,8 @@ export default function App() {
             }
           />
 
-          <Route path="/projects/:id" element={<ProjectDetail />} />
+          {/* 404 - Page Not Found - MUST BE LAST!  */}
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

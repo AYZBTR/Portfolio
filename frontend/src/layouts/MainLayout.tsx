@@ -16,9 +16,10 @@ function MainLayoutContent() {
   const [scrolled, setScrolled] = useState(false);
 
   // hide navbar on admin routes and project detail pages
-  const isAdminRoute = location.pathname.startsWith("/admin");
-  const isProjectDetailPage = location. pathname.startsWith("/projects/");
-  const hideNavbar = isAdminRoute || isProjectDetailPage;
+const adminBase = import.meta.env.VITE_ADMIN_BASE || '/admin';
+const isAdminRoute = location.pathname.startsWith(adminBase);
+const isProjectDetailPage = location.pathname.startsWith("/projects/");
+const hideNavbar = isAdminRoute || isProjectDetailPage;
 
   // Helper to remove locomotive-added classes and scrollbar DOM nodes
   const cleanupLocomotiveClasses = () => {

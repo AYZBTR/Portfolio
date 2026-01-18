@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getProjectById, updateProject } from "../../services/projectService";
 import { Plus, X, Image as ImageIcon, ArrowLeft } from "lucide-react";
+import ADMIN_ROUTES from "../../config/adminRoutes";
 
 export default function EditProject() {
   const { id } = useParams<{ id: string }>();
@@ -37,7 +38,7 @@ export default function EditProject() {
       } catch (error) {
         console.error("Failed to load project:", error);
         alert("Failed to load project");
-        navigate("/admin");
+        navigate(ADMIN_ROUTES. BASE);
       }
     };
 
@@ -89,7 +90,7 @@ export default function EditProject() {
 
       await updateProject(id, projectData);
       alert("✅ Project updated successfully!");
-      navigate("/admin");
+      navigate(ADMIN_ROUTES. BASE);
     } catch (error) {
       console.error("Error updating project:", error);
       alert("❌ Failed to update project");

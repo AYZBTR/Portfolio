@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createProject } from "../../services/projectService";
 import { Plus, X, Image as ImageIcon } from "lucide-react";
+import ADMIN_ROUTES from "../../config/adminRoutes";
 
 export default function CreateProject() {
   const navigate = useNavigate();
@@ -63,7 +64,7 @@ export default function CreateProject() {
 
       await createProject(projectData);
       alert("✅ Project created successfully!");
-      navigate("/admin");
+      navigate(ADMIN_ROUTES.BASE);
     } catch (error) {
       console.error("Error creating project:", error);
       alert("❌ Failed to create project");

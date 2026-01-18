@@ -1,6 +1,8 @@
 import { SignIn } from "@clerk/clerk-react";
 
 export default function Login() {
+  const adminBase = import.meta.env.VITE_ADMIN_BASE || '/admin';
+  
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <SignIn 
@@ -11,8 +13,8 @@ export default function Login() {
           }
         }}
         routing="path"
-        path="/admin/login"
-        afterSignInUrl="/admin"
+        path={`${adminBase}/login`}
+        afterSignInUrl={adminBase}
       />
     </div>
   );

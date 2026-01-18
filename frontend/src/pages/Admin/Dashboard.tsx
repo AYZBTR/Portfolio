@@ -1,6 +1,7 @@
 import api from "../../services/api";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import ADMIN_ROUTES from "../../config/adminRoutes";
 
 export default function Dashboard() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -10,11 +11,11 @@ export default function Dashboard() {
   // Fetch projects
   const fetchProjects = async () => {
     const res = await api.get("/projects");
-    setProjects(res.data);
+    setProjects(res. data);
   };
 
   const deleteProject = async (id: string) => {
-    await api.delete(`/projects/${id}`, {
+    await api. delete(`/projects/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     fetchProjects();
@@ -29,17 +30,17 @@ export default function Dashboard() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Admin Dashboard</h1>
 
-        {/* Right-side controls: Settings button in front of Add New Project */}
+        {/* Right-side controls:  Settings button in front of Add New Project */}
         <div className="flex items-center gap-4">
           <Link
-            to="/admin/settings"
+            to={ADMIN_ROUTES.SETTINGS}
             className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition font-semibold"
           >
             ⚙️ Settings
           </Link>
 
           <Link
-            to="/admin/create"
+            to={ADMIN_ROUTES.CREATE}
             className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition font-semibold"
           >
             + Add New Project
@@ -58,8 +59,8 @@ export default function Dashboard() {
 
             <div className="mt-4 flex gap-3">
               <Link
-                to={`/admin/edit/${p._id}`}
-                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition"
+                to={ADMIN_ROUTES.EDIT(p._id)}
+                className="bg-blue-600 hover: bg-blue-700 px-4 py-2 rounded transition"
               >
                 Edit
               </Link>
