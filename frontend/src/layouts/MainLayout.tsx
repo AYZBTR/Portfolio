@@ -16,10 +16,10 @@ function MainLayoutContent() {
   const [scrolled, setScrolled] = useState(false);
 
   // hide navbar on admin routes and project detail pages
-  const adminBase = import.meta.env.VITE_ADMIN_BASE || '/admin';
-  const isAdminRoute = location.pathname.startsWith(adminBase);
-  const isProjectDetailPage = location.pathname.startsWith("/projects/");
-  const hideNavbar = isAdminRoute || isProjectDetailPage;
+const adminBase = import.meta.env.VITE_ADMIN_BASE || '/admin';
+const isAdminRoute = location.pathname.startsWith(adminBase);
+const isProjectDetailPage = location.pathname.startsWith("/projects/");
+const hideNavbar = isAdminRoute || isProjectDetailPage;
 
   // Helper to remove locomotive-added classes and scrollbar DOM nodes
   const cleanupLocomotiveClasses = () => {
@@ -40,28 +40,19 @@ function MainLayoutContent() {
   useEffect(() => {
     if (! scrollRef.current) return;
 
-    // 🔥 DETECT MOBILE DEVICE
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
-
-    // Hide native scroll while Locomotive controls it (only on desktop)
-    if (!isMobile) {
-      document. documentElement.style.overflow = "hidden";
-      document.body.style.overflow = "hidden";
-    }
+    // Hide native scroll while Locomotive controls it
+    document. documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
 
     const initTimer = setTimeout(() => {
       if (! locoScrollRef.current && scrollRef.current) {
         locoScrollRef.current = new LocomotiveScroll({
           el: scrollRef.current,
-          smooth: ! isMobile, // ✅ Disable smooth scroll on mobile
+          smooth: true,
           lerp: 0.1,
           multiplier: 1,
-          smartphone: { 
-            smooth: false // ✅ Use native mobile scroll
-          },
-          tablet:  { 
-            smooth: false // ✅ Use native tablet scroll
-          },
+          smartphone: { smooth: true },
+          tablet: { smooth: true },
         });
 
         // Listen to scroll events for navbar background change
@@ -79,7 +70,7 @@ function MainLayoutContent() {
       clearTimeout(initTimer);
 
       try {
-        locoScrollRef. current?.destroy();
+        locoScrollRef.current?.destroy();
       } catch (e) {
         // ignore errors during destroy
       }
@@ -132,21 +123,21 @@ function MainLayoutContent() {
   };
 
   const navLinks = [
-    { name:  "Home", id: "hero", icon: Home },
-    { name: "Projects", id: "projects", icon: Briefcase },
-    { name: "About", id: "about", icon:  User },
+    { name: "Home", id: "hero", icon: Home },
+    { name: "Projects", id: "projects", icon:  Briefcase },
+    { name: "About", id: "about", icon: User },
     { name: "Contact", id: "contact", icon: Mail },
   ];
 
   return (
     <>
       {/* ENHANCED NAVBAR */}
-      {!hideNavbar && (
+      {! hideNavbar && (
         <header
           className={`fixed top-0 left-0 w-full z-[999] transition-all duration-500 ${
             scrolled
               ? "bg-slate-900/90 backdrop-blur-xl border-b border-indigo-500/20 shadow-2xl shadow-indigo-500/10"
-              :  "bg-slate-900/60 backdrop-blur-md border-b border-slate-700/40"
+              : "bg-slate-900/60 backdrop-blur-md border-b border-slate-700/40"
           }`}
         >
           <div className="max-w-7xl mx-auto px-6 md:px-10 lg:px-20">
@@ -187,12 +178,12 @@ function MainLayoutContent() {
 
               {/* MOBILE BURGER ICON */}
               <button
-                className="md:hidden relative w-10 h-10 flex flex-col items-center justify-center gap-1. 5 group z-[10000]"
+                className="md:hidden relative w-10 h-10 flex flex-col items-center justify-center gap-1.5 group z-[10000]"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 <span
                   className={`w-6 h-0.5 bg-white rounded-full transition-all duration-300 ${
-                    mobileMenuOpen ? "rotate-45 translate-y-2" : ""
+                    mobileMenuOpen ?  "rotate-45 translate-y-2" : ""
                   }`}
                 ></span>
                 <span
@@ -212,7 +203,7 @@ function MainLayoutContent() {
       )}
 
       {/* MOBILE MENU OVERLAY */}
-      {!hideNavbar && mobileMenuOpen && (
+      {! hideNavbar && mobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] md:hidden"
           onClick={() => setMobileMenuOpen(false)}
@@ -220,7 +211,7 @@ function MainLayoutContent() {
       )}
 
       {/* MOBILE SLIDE-OUT MENU */}
-      {! hideNavbar && (
+      {!hideNavbar && (
         <div
           className={`
             md:hidden fixed top-0 right-0 h-full w-72 bg-slate-900/98 backdrop-blur-xl
