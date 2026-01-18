@@ -16,7 +16,7 @@ function MainLayoutContent() {
   const [scrolled, setScrolled] = useState(false);
 
   // hide navbar on admin routes and project detail pages
-const adminBase = import.meta.env.VITE_ADMIN_BASE || '/admin';
+const adminBase = (import.meta.env.VITE_ADMIN_BASE as string | undefined) || '/admin';
 const isAdminRoute = location.pathname.startsWith(adminBase);
 const isProjectDetailPage = location.pathname.startsWith("/projects/");
 const hideNavbar = isAdminRoute || isProjectDetailPage;
@@ -47,13 +47,15 @@ const hideNavbar = isAdminRoute || isProjectDetailPage;
     const initTimer = setTimeout(() => {
       if (! locoScrollRef.current && scrollRef.current) {
         locoScrollRef.current = new LocomotiveScroll({
-          el: scrollRef.current,
-          smooth: true,
-          lerp: 0.1,
-          multiplier: 1,
-          smartphone: { smooth: true },
-          tablet: { smooth: true },
-        });
+  el:  scrollRef.current,
+  smooth: true,
+  lerp:  0.25,  // ✅ Faster response (was 0.1)
+  multiplier: 1.5,  // ✅ More scroll distance
+  smartphone: { smooth: false },
+  tablet: { smooth:  false },
+  reloadOnContextChange: true,  // ✅ Force reload on changes
+  resetNativeScroll: true,
+});
 
         // Listen to scroll events for navbar background change
         locoScrollRef.current.on("scroll", (args:  any) => {
