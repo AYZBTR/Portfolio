@@ -12,19 +12,19 @@ export interface HeroSettings {
 export interface AboutSettings {
   headline: string;
   description: string;
-  skills:  string[];
+  skills: string[];
 }
 
-// NEW: Social Link interface
+// Social Link interface
 export interface SocialLink {
-  platform:  string;
+  platform: string;
   url: string;
 }
 
 export interface ContactSettings {
   email: string;
   location: string;
-  socialLinks: SocialLink[];  // NEW!
+  socialLinks: SocialLink[];
 }
 
 export interface SiteSettings {
@@ -33,9 +33,29 @@ export interface SiteSettings {
   contact: ContactSettings;
 }
 
+// Helper function to retry requests
+async function retryRequest<T>(
+  requestFn: () => Promise<T>,
+  maxRetries: number = 2,
+  delay: number = 2000
+): Promise<T> {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await requestFn();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      console.log(`Retry ${i + 1}/${maxRetries} after ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  throw new Error("Max retries reached");
+}
+
 export async function fetchSiteSettings(): Promise<SiteSettings> {
-  const res = await api.get<SiteSettings>("/settings");
-  return res.data;
+  return retryRequest(async () => {
+    const res = await api.get<SiteSettings>("/settings");
+    return res.data;
+  });
 }
 
 export async function updateSiteSettings(
