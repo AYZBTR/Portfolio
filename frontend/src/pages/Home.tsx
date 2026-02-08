@@ -33,32 +33,38 @@ const DEFAULT_SETTINGS: SiteSettings = {
 
 export default function Home() {
   const { updateScroll } = useScroll();
-  // Start with default settings instead of null
   const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
-  const [isLoadingFromAPI, setIsLoadingFromAPI] = useState(true);
   const [showWarmUpMessage, setShowWarmUpMessage] = useState(false);
 
   useEffect(() => {
-    // Show warm-up message after 3 seconds if still loading
+    // Show warm-up message after 2 seconds
     const warmUpTimer = setTimeout(() => {
-      if (isLoadingFromAPI) {
-        setShowWarmUpMessage(true);
-      }
-    }, 3000);
+      setShowWarmUpMessage(true);
+    }, 2000);
+
+    // Hide message after 30 seconds (give up)
+    const hideTimer = setTimeout(() => {
+      setShowWarmUpMessage(false);
+      console.warn("API took too long, using default settings");
+    }, 30000);
 
     const load = async () => {
       try {
+        console.log("Fetching settings from API...");
         const data = await fetchSiteSettings();
+        console.log("Settings loaded successfully:", data);
         setSettings(data);
         setShowWarmUpMessage(false);
-      } catch (err) {
-        console.error("Failed to load settings", err);
-        // Keep showing default settings on error
-      } finally {
-        setIsLoadingFromAPI(false);
         clearTimeout(warmUpTimer);
-
-        // force locomotive to recalc after content loads
+        clearTimeout(hideTimer);
+      } catch (err) {
+        console.error("Failed to load settings:", err);
+        // Hide the message on error
+        setShowWarmUpMessage(false);
+        clearTimeout(warmUpTimer);
+        clearTimeout(hideTimer);
+      } finally {
+        // Force locomotive to recalc
         setTimeout(updateScroll, 100);
         setTimeout(updateScroll, 300);
         setTimeout(updateScroll, 600);
@@ -67,12 +73,15 @@ export default function Home() {
 
     load();
 
-    return () => clearTimeout(warmUpTimer);
+    return () => {
+      clearTimeout(warmUpTimer);
+      clearTimeout(hideTimer);
+    };
   }, [updateScroll]);
 
   return (
     <>
-      {/* Show warm-up notification if backend is spinning up */}
+      {/* Show warm-up notification only while loading */}
       {showWarmUpMessage && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 bg-blue-500/90 text-white px-6 py-3 rounded-lg shadow-lg animate-pulse">
           <div className="flex items-center gap-2">
@@ -85,7 +94,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Show content immediately with default or loaded settings */}
+      {/* Always show content */}
       <Hero hero={settings.hero} />
       <FeaturedProjects />
       <AboutSection about={settings.about} />
