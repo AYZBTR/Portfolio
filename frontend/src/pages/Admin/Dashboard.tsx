@@ -2,20 +2,22 @@ import api from "../../services/api";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ADMIN_ROUTES from "../../config/adminRoutes";
+import { useClerk } from "@clerk/clerk-react";
 
 export default function Dashboard() {
   const [projects, setProjects] = useState<any[]>([]);
+  const { signOut } = useClerk();
 
   const token = localStorage.getItem("token");
 
   // Fetch projects
   const fetchProjects = async () => {
     const res = await api.get("/projects");
-    setProjects(res. data);
+    setProjects(res.data);
   };
 
   const deleteProject = async (id: string) => {
-    await api. delete(`/projects/${id}`, {
+    await api.delete(`/projects/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     fetchProjects();
@@ -30,7 +32,7 @@ export default function Dashboard() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Admin Dashboard</h1>
 
-        {/* Right-side controls:  Settings button in front of Add New Project */}
+        {/* Right-side controls: Settings, Add New Project, Sign out */}
         <div className="flex items-center gap-4">
           <Link
             to={ADMIN_ROUTES.SETTINGS}
@@ -45,6 +47,13 @@ export default function Dashboard() {
           >
             + Add New Project
           </Link>
+
+          <button
+            onClick={() => signOut({ redirectUrl: ADMIN_ROUTES.LOGIN })}
+            className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition font-semibold"
+          >
+            Sign out
+          </button>
         </div>
       </div>
 

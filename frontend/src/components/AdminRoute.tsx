@@ -1,9 +1,11 @@
-import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, RedirectToSignIn, useAuth } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import AccessDenied from "../pages/Admin/AccessDenied";
 
 export default function AdminRoute({ children }: { children: JSX.Element }) {
+  const { getToken } = useAuth();
+
   const [loading, setLoading] = useState(true);
   const [allowed, setAllowed] = useState(false);
 
@@ -12,22 +14,18 @@ export default function AdminRoute({ children }: { children: JSX.Element }) {
 
     const check = async () => {
       try {
-        // If this succeeds => user is admin (authMiddleware passed)
-        await api.get("/admin/check");
+        const token = await getToken();
+        if (!token) throw new Error("No Clerk token");
+
+        await api.get("/admin/check", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
         if (!mounted) return;
         setAllowed(true);
-      } catch (err: any) {
+      } catch (err) {
         if (!mounted) return;
-
-        const status = err?.response?.status;
-
-        // 403 => signed in but not admin
-        if (status === 403) {
-          setAllowed(false);
-        } else {
-          // 401 or other errors => treat as not allowed
-          setAllowed(false);
-        }
+        setAllowed(false);
       } finally {
         if (!mounted) return;
         setLoading(false);
@@ -38,7 +36,7 @@ export default function AdminRoute({ children }: { children: JSX.Element }) {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [getToken]);
 
   return (
     <>
