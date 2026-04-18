@@ -9,6 +9,7 @@ import projectRoutes from "./routes/project.routes";
 import authRoutes from "./routes/auth.routes";
 import siteSettingsRoutes from "./routes/siteSettings.routes";
 import uploadRoutes from "./routes/upload.routes";
+import adminRoutes from "./routes/admin.routes";
 
 console.log("🔧 Environment check:");
 console.log("CLERK_SECRET_KEY:", process. env.CLERK_SECRET_KEY ?  "✅ Set" : "❌ Missing");
@@ -24,6 +25,7 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/settings", siteSettingsRoutes);
 app.use("/api/uploads", uploadRoutes);
 
+app.use("/api/admin", adminRoutes);
 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI || "";
