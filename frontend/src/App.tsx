@@ -14,6 +14,7 @@ import SiteSettingsPage from "./pages/Admin/SiteSettings";
 
 // Authentication
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 export default function App() {
   return (
@@ -33,36 +34,36 @@ export default function App() {
           <Route
             path={ADMIN_ROUTES.BASE}
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <Dashboard />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
 
           <Route
             path={ADMIN_ROUTES.CREATE}
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <CreateProject />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
 
           <Route
             path={`${ADMIN_ROUTES.BASE}/edit/:id`}
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <EditProject />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
 
           <Route
             path={ADMIN_ROUTES.SETTINGS}
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <SiteSettingsPage />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
 
