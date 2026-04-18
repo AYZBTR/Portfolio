@@ -9,6 +9,7 @@ import projectRoutes from "./routes/project.routes";
 import authRoutes from "./routes/auth.routes";
 import siteSettingsRoutes from "./routes/siteSettings.routes";
 import uploadRoutes from "./routes/upload.routes";
+import adminRoutes from "./routes/adminCheck.routes";
 
 console.log("🔧 Environment check:");
 console.log("CLERK_SECRET_KEY:", process. env.CLERK_SECRET_KEY ?  "✅ Set" : "❌ Missing");
@@ -19,7 +20,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth", authRoutes);
-
+app.use("/api/admin", adminRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/settings", siteSettingsRoutes);
 app.use("/api/uploads", uploadRoutes);

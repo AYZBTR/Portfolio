@@ -9,8 +9,6 @@ export default async function authMiddleware(
   try {
     const authHeader = req.headers.authorization;
 
-    console.log("🔐 Auth header received:", authHeader);
-
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       console.log("❌ No valid auth header");
       return res.status(401).json({ message: "Unauthorized" });
