@@ -12,12 +12,7 @@ import CreateProject from "./pages/Admin/CreateProject";
 import EditProject from "./pages/Admin/EditProject";
 import SiteSettingsPage from "./pages/Admin/SiteSettings";
 
-<<<<<<< HEAD
 // ✅ Admin-only route guard
-=======
-// Authentication
-import ProtectedRoute from "./components/ProtectedRoute";
->>>>>>> f14cde596a742fb480f54e3a68faa773892d9823
 import AdminRoute from "./components/AdminRoute";
 
 export default function App() {
