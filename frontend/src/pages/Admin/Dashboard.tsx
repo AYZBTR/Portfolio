@@ -29,11 +29,12 @@ export default function Dashboard() {
 
   return (
     <div className="p-8 min-h-screen bg-[#0d1117] text-white">
-      <div className="flex justify-between items-center mb-8">
+      {/* Responsive header */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
         <h1 className="text-4xl font-bold">Admin Dashboard</h1>
 
-        {/* Right-side controls: Settings, Add New Project, Sign out */}
-        <div className="flex items-center gap-4">
+        {/* Right-side controls */}
+        <div className="flex flex-wrap gap-3 sm:justify-end">
           <Link
             to={ADMIN_ROUTES.SETTINGS}
             className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg transition font-semibold"
@@ -61,15 +62,22 @@ export default function Dashboard() {
         {projects.map((p) => (
           <div
             key={p._id}
-            className="bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-700 hover:border-gray-500 transition"
+            className="bg-gray-900 rounded-xl p-6 shadow-lg border border-gray-700 hover:border-gray-500 transition
+                       h-[320px] sm:h-[220px] flex flex-col"
           >
-            <h2 className="text-2xl font-bold">{p.title}</h2>
-            <p className="text-gray-400 mt-1">{p.description}</p>
+            {/* Title preview */}
+            <h2 className="text-2xl font-bold line-clamp-2">{p.title}</h2>
 
-            <div className="mt-4 flex gap-3">
+            {/* Description preview */}
+            <p className="text-gray-400 mt-2 line-clamp-4 sm:line-clamp-3">
+              {p.description}
+            </p>
+
+            {/* Actions pinned to bottom */}
+            <div className="mt-auto pt-4 flex gap-3">
               <Link
                 to={ADMIN_ROUTES.EDIT(p._id)}
-                className="bg-blue-600 hover: bg-blue-700 px-4 py-2 rounded transition"
+                className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded transition"
               >
                 Edit
               </Link>

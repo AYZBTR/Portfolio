@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import ProjectDetail from "./pages/ProjectDetail";
 import MainLayoutContent from "./layouts/MainLayout";
 import Home from "./pages/Home";
@@ -19,6 +19,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/admin" element={<Navigate to={ADMIN_ROUTES.LOGIN} replace />} />
         <Route element={<MainLayoutContent />}>
           {/* 🌍 PUBLIC WEBSITE */}
           <Route path="/" element={<Home />} />

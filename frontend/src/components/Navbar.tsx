@@ -1,16 +1,11 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import {
-  Home,
-  FolderKanban,
-  UserRound,
-  Mail
-} from "lucide-react";
+import { Home, FolderKanban, UserRound, Mail, LogIn } from "lucide-react";
 
-// allow window. locoScroll
+// allow window.locoScroll
 declare global {
   interface Window {
-    locoScroll: unknown;
+    locoScroll: any;
   }
 }
 
@@ -36,17 +31,17 @@ export default function Navbar() {
   const scrollToSection = (id: string) => {
     const scroll = () => {
       const el = document.getElementById(id);
-      if (! el) return;
+      if (!el) return;
 
       if (window.locoScroll) {
-        window.locoScroll. update();
+        window.locoScroll.update();
         window.locoScroll.scrollTo(el, { offset: -80 });
       } else {
         el.scrollIntoView({ behavior: "smooth" });
       }
     };
 
-    if (! isHome) {
+    if (!isHome) {
       navigate("/");
       setTimeout(scroll, 450);
     } else {
@@ -93,32 +88,47 @@ export default function Navbar() {
           </Link>
 
           {/* DESKTOP MENU */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2 ml-auto flex-wrap justify-end">
             {navLinks.map((link) => (
               <button
                 key={link.id}
                 onClick={() => scrollToSection(link.id)}
-                className="relative px-5 py-2. 5 rounded-xl font-medium text-gray-300 hover:text-white transition-all duration-300 group"
+                className="relative px-5 py-2.5 rounded-xl font-medium text-gray-300 hover:text-white transition-all duration-300 group"
               >
                 {/* Hover background */}
                 <span className="absolute inset-0 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                
+
                 {/* Text */}
                 <span className="relative z-10 flex items-center gap-2">
-                  <link.icon size={18} strokeWidth={2} className="group-hover:scale-110 transition-transform" />
+                  <link.icon
+                    size={18}
+                    strokeWidth={2}
+                    className="group-hover:scale-110 transition-transform"
+                  />
                   {link.name}
                 </span>
-                
+
                 {/* Bottom indicator on hover */}
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0. 5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full group-hover:w-3/4 transition-all duration-300"></span>
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full group-hover:w-3/4 transition-all duration-300"></span>
               </button>
             ))}
+
+            {/* ✅ Login button (goes to /admin shortcut) */}
+            <Link
+              to="/admin"
+              className="ml-2 px-6 py-2.5 rounded-xl font-semibold text-white
+                         bg-white/10 hover:bg-white/20 border border-white/20
+                         transition-all duration-200 flex items-center gap-2"
+            >
+              <LogIn size={18} />
+              Login
+            </Link>
 
             {/* Optional CTA Button */}
             <a
               href="#contact"
               onClick={(e) => {
-                e. preventDefault();
+                e.preventDefault();
                 scrollToSection("contact");
               }}
               className="ml-2 px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl font-semibold text-white shadow-lg shadow-indigo-500/50 transform hover:scale-105 transition-all duration-200"
@@ -131,6 +141,7 @@ export default function Navbar() {
           <button
             className="md:hidden relative w-10 h-10 flex flex-col items-center justify-center gap-1.5 group z-[10000]"
             onClick={() => setOpen(!open)}
+            aria-label="Toggle menu"
           >
             <span
               className={`w-6 h-0.5 bg-white rounded-full transition-all duration-300 ${
@@ -139,12 +150,12 @@ export default function Navbar() {
             ></span>
             <span
               className={`w-6 h-0.5 bg-white rounded-full transition-all duration-300 ${
-                open ?  "opacity-0" : ""
+                open ? "opacity-0" : ""
               }`}
             ></span>
             <span
               className={`w-6 h-0.5 bg-white rounded-full transition-all duration-300 ${
-                open ?  "-rotate-45 -translate-y-2" : ""
+                open ? "-rotate-45 -translate-y-2" : ""
               }`}
             ></span>
           </button>
@@ -165,6 +176,7 @@ export default function Navbar() {
         <button
           onClick={() => setOpen(false)}
           className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+          aria-label="Close menu"
         >
           <span className="text-3xl">✕</span>
         </button>
@@ -192,10 +204,23 @@ export default function Navbar() {
             </button>
           ))}
 
+          {/* ✅ Login entry in mobile menu */}
+          <Link to="/admin" onClick={() => setOpen(false)} className="w-full">
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-300 transform hover:scale-105">
+              <div className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center border border-white/10">
+                <LogIn size={24} strokeWidth={2} className="text-white" />
+              </div>
+
+              <span className="text-lg font-semibold text-gray-300 hover:text-white transition-colors">
+                Login
+              </span>
+            </div>
+          </Link>
+
           {/* CTA in mobile menu */}
           <button
             onClick={() => scrollToSection("contact")}
-            className="w-full mt-4 px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover: to-purple-700 rounded-xl font-bold text-white shadow-xl shadow-indigo-500/50 transform hover:scale-105 transition-all duration-300"
+            className="w-full mt-4 px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl font-bold text-white shadow-xl shadow-indigo-500/50 transform hover:scale-105 transition-all duration-300"
           >
             Let's Work Together
           </button>
