@@ -12,8 +12,8 @@ import CreateProject from "./pages/Admin/CreateProject";
 import EditProject from "./pages/Admin/EditProject";
 import SiteSettingsPage from "./pages/Admin/SiteSettings";
 
-// Authentication
-import ProtectedRoute from "./components/ProtectedRoute";
+// ✅ Admin-only route guard
+import AdminRoute from "./components/AdminRoute";
 
 export default function App() {
   return (
@@ -26,47 +26,47 @@ export default function App() {
           {/* 📁 PROJECT DETAIL PAGE */}
           <Route path="/projects/:id" element={<ProjectDetail />} />
 
-          {/* 🔐 ADMIN AUTH ROUTE */}
+          {/* 🔐 ADMIN LOGIN ROUTE (PUBLIC) */}
           <Route path={ADMIN_ROUTES.LOGIN} element={<Login />} />
 
-          {/* 🔒 PROTECTED ADMIN ROUTES */}
+          {/* 🔒 ADMIN-ONLY ROUTES (BLOCK NON-ADMIN BEFORE UI RENDERS) */}
           <Route
             path={ADMIN_ROUTES.BASE}
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <Dashboard />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
 
           <Route
             path={ADMIN_ROUTES.CREATE}
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <CreateProject />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
 
           <Route
             path={`${ADMIN_ROUTES.BASE}/edit/:id`}
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <EditProject />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
 
           <Route
             path={ADMIN_ROUTES.SETTINGS}
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <SiteSettingsPage />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
 
-          {/* 404 - Page Not Found - MUST BE LAST!  */}
+          {/* 404 - Page Not Found - MUST BE LAST! */}
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
