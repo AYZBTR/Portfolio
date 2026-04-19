@@ -1,6 +1,13 @@
 import { useScroll } from "../contexts/ScrollContext";
 import type { HeroSettings } from "../services/settingsApi";
-import { SiReact, SiNodedotjs, SiMongodb, SiTypescript, SiAmazon, SiCisco } from "react-icons/si";
+import {
+  SiReact,
+  SiNodedotjs,
+  SiMongodb,
+  SiTypescript,
+  SiAmazon,
+  SiCisco,
+} from "react-icons/si";
 
 interface HeroProps {
   hero: HeroSettings;
@@ -17,11 +24,11 @@ export default function Hero({ hero }: HeroProps) {
     >
       {/* Animated background gradient */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 via-purple-600/10 to-pink-600/10"></div>
-      
+
       {/* Floating orbs */}
       <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-500/30 rounded-full blur-3xl animate-pulse"></div>
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-700"></div>
-      
+
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
         {/* LEFT SIDE */}
         <div className="space-y-6 animate-fadeIn">
@@ -30,7 +37,7 @@ export default function Hero({ hero }: HeroProps) {
               {hero.title || "Full-Stack Developer"}
             </p>
           </div>
-          
+
           <h1 className="text-5xl md:text-7xl font-extrabold leading-tight">
             <span className="text-white">Hi, I'm </span>
             <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent animate-gradient">
@@ -38,18 +45,24 @@ export default function Hero({ hero }: HeroProps) {
             </span>
             <span className="text-white">. </span>
           </h1>
-          
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-300">
-  {hero.subtitle || "I build modern web apps & secure networks. "}
-</h2>
 
-<p className="text-xl text-gray-400 max-w-xl leading-relaxed">
-  Tech enthusiast driven by curiosity and passion for innovation.  I believe 
-  <span className="text-indigo-400 font-semibold"> there's no limit to knowledge</span> — 
-  deeply interested in machines, networks, and how technology transforms ideas into reality.  
-  From code to circuits, <span className="text-cyan-400 font-semibold">I explore it all</span>. 
-</p>
-          
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-300">
+            {hero.subtitle || "I build modern web apps & secure networks. "}
+          </h2>
+
+          <p className="text-xl text-gray-400 max-w-xl leading-relaxed">
+            Tech enthusiast driven by curiosity and passion for innovation. I
+            believe
+            <span className="text-indigo-400 font-semibold">
+              {" "}
+              there's no limit to knowledge
+            </span>{" "}
+            — deeply interested in machines, networks, and how technology
+            transforms ideas into reality. From code to circuits,{" "}
+            <span className="text-cyan-400 font-semibold">I explore it all</span>
+            .
+          </p>
+
           <div className="flex flex-wrap gap-4 pt-4">
             <button
               onClick={() => scrollToSection("projects")}
@@ -64,7 +77,7 @@ export default function Hero({ hero }: HeroProps) {
               {hero.secondaryCtaLabel || "Contact Me"}
             </button>
           </div>
-          
+
           {/* Tech Stack Icons */}
           <div className="flex gap-6 pt-8 items-center flex-wrap">
             <p className="text-gray-400 font-medium">Tech Stack: </p>
@@ -80,7 +93,7 @@ export default function Hero({ hero }: HeroProps) {
                 </div>
               </div>
               <div className="group relative" title="MongoDB">
-                <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700 hover: border-green-600 transition-colors cursor-pointer">
+                <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700 hover:border-green-600 transition-colors cursor-pointer">
                   <SiMongodb className="text-2xl text-green-600" />
                 </div>
               </div>
@@ -90,7 +103,7 @@ export default function Hero({ hero }: HeroProps) {
                 </div>
               </div>
               <div className="group relative" title="AWS">
-                <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700 hover: border-orange-500 transition-colors cursor-pointer">
+                <div className="w-12 h-12 bg-gray-800 rounded-lg flex items-center justify-center border border-gray-700 hover:border-orange-500 transition-colors cursor-pointer">
                   <SiAmazon className="text-2xl text-orange-500" />
                 </div>
               </div>
@@ -102,16 +115,17 @@ export default function Hero({ hero }: HeroProps) {
             </div>
           </div>
         </div>
-        
+
         {/* RIGHT SIDE - Profile */}
         <div className="relative animate-fadeIn delay-300">
-          <div className="relative w-full aspect-square max-w-lg mx-auto">
+          {/* Smaller portrait card */}
+          <div className="relative w-full aspect-[3/4] max-w-[360px] md:max-w-[420px] mx-auto">
             {/* Glow effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-3xl blur-2xl opacity-40 animate-pulse"></div>
-            
+
             {/* Main container */}
-            <div className="relative bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl overflow-hidden shadow-2xl border border-indigo-500/30">
-              {hero.heroImageUrl ?  (
+            <div className="relative bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl overflow-hidden shadow-2xl border border-indigo-500/30 h-full">
+              {hero.heroImageUrl ? (
                 <img
                   src={hero.heroImageUrl}
                   alt={hero.name || "Profile"}
@@ -127,14 +141,16 @@ export default function Hero({ hero }: HeroProps) {
                 </div>
               )}
             </div>
-            
+
             {/* Floating tech badges */}
             <div className="absolute -top-6 -left-6 bg-gray-800/90 backdrop-blur-sm px-5 py-3 rounded-xl border border-indigo-500/50 shadow-xl animate-float">
               <p className="text-sm font-bold text-indigo-400">⚛️ MERN Stack</p>
             </div>
 
             <div className="absolute top-10 -right-6 bg-gray-800/90 backdrop-blur-sm px-5 py-3 rounded-xl border border-cyan-500/50 shadow-xl animate-float delay-200">
-              <p className="text-sm font-bold text-cyan-400">🔒 Cisco Networking</p>
+              <p className="text-sm font-bold text-cyan-400">
+                🔒 Cisco Networking
+              </p>
             </div>
 
             <div className="absolute bottom-1/3 -left-8 bg-gray-800/90 backdrop-blur-sm px-5 py-3 rounded-xl border border-orange-500/50 shadow-xl animate-float delay-400">
