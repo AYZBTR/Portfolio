@@ -171,5 +171,5 @@ If you'd like to discuss the project or see a walkthrough:
 
 - Name: **Ayush**
 - GitHub: https://github.com/AYZBTR
-- Portfolio: _(add link once deployed)_
-- Email / LinkedIn: _(add)_
+- Portfolio: https://aayushbhattarai78.com.np/
+- Email / LinkedIn: https://www.linkedin.com/in/ayzbtr/
