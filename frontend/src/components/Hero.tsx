@@ -23,11 +23,11 @@ export default function Hero({ hero }: HeroProps) {
       className="min-h-screen flex items-center justify-center px-6 md:px-20 py-20 relative overflow-hidden"
     >
       {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 via-purple-600/10 to-pink-600/10"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/10 via-purple-600/10 to-pink-600/10" />
 
       {/* Floating orbs */}
-      <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-500/30 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-700"></div>
+      <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-500/30 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-700" />
 
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center relative z-10">
         {/* LEFT SIDE */}
@@ -116,57 +116,50 @@ export default function Hero({ hero }: HeroProps) {
           </div>
         </div>
 
-        {/* RIGHT SIDE - Profile */}
+        {/* RIGHT SIDE - Smaller round avatar */}
         <div className="relative animate-fadeIn delay-300">
-          {/* Smaller portrait card */}
-          <div className="relative w-full aspect-[3/4] max-w-[360px] md:max-w-[420px] mx-auto">
-            {/* Glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-3xl blur-2xl opacity-40 animate-pulse"></div>
+          <div className="relative mx-auto w-56 h-56 md:w-72 md:h-72">
+            {/* Glow */}
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 rounded-full blur-2xl opacity-40 animate-pulse" />
 
-            {/* Main container */}
-            <div className="relative bg-gradient-to-br from-indigo-600 to-purple-600 rounded-3xl overflow-hidden shadow-2xl border border-indigo-500/30 h-full">
+            {/* Avatar frame */}
+            <div className="relative w-full h-full rounded-full overflow-hidden border border-indigo-500/30 shadow-2xl bg-gradient-to-br from-indigo-600 to-purple-600">
               {hero.heroImageUrl ? (
                 <img
                   src={hero.heroImageUrl}
                   alt={hero.name || "Profile"}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600">
-                  <div className="text-center p-8">
-                    <div className="text-9xl mb-6 animate-bounce">👨‍💻</div>
-                    <p className="text-white text-3xl font-bold">Full-Stack</p>
-                    <p className="text-indigo-200 text-xl">Network Engineer</p>
+                  <div className="text-center p-6">
+                    <div className="text-6xl mb-2">👨‍💻</div>
+                    <p className="text-white text-xl font-bold">Full-Stack</p>
+                    <p className="text-indigo-200 text-sm">Network Engineer</p>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Floating tech badges */}
-            <div className="absolute -top-6 -left-6 bg-gray-800/90 backdrop-blur-sm px-5 py-3 rounded-xl border border-indigo-500/50 shadow-xl animate-float">
-              <p className="text-sm font-bold text-indigo-400">⚛️ MERN Stack</p>
+            {/* Badges (repositioned for circle) */}
+            <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gray-800/90 backdrop-blur-sm px-4 py-2 rounded-xl border border-indigo-500/50 shadow-xl animate-float">
+              <p className="text-xs font-bold text-indigo-400">⚛️ MERN Stack</p>
             </div>
 
-            <div className="absolute top-10 -right-6 bg-gray-800/90 backdrop-blur-sm px-5 py-3 rounded-xl border border-cyan-500/50 shadow-xl animate-float delay-200">
-              <p className="text-sm font-bold text-cyan-400">
-                🔒 Cisco Networking
-              </p>
+            <div className="absolute top-8 -right-6 bg-gray-800/90 backdrop-blur-sm px-4 py-2 rounded-xl border border-cyan-500/50 shadow-xl animate-float delay-200">
+              <p className="text-xs font-bold text-cyan-400">🔒 Cisco</p>
             </div>
 
-            <div className="absolute bottom-1/3 -left-8 bg-gray-800/90 backdrop-blur-sm px-5 py-3 rounded-xl border border-orange-500/50 shadow-xl animate-float delay-400">
-              <p className="text-sm font-bold text-orange-400">☁️ Cloud</p>
+            <div className="absolute bottom-10 -left-7 bg-gray-800/90 backdrop-blur-sm px-4 py-2 rounded-xl border border-orange-500/50 shadow-xl animate-float delay-400">
+              <p className="text-xs font-bold text-orange-400">☁️ Cloud</p>
             </div>
 
-            <div className="absolute -bottom-6 left-16 bg-gray-800/90 backdrop-blur-sm px-5 py-3 rounded-xl border border-green-500/50 shadow-xl animate-float delay-500">
-              <p className="text-sm font-bold text-green-400">🌐 IoT</p>
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-gray-800/90 backdrop-blur-sm px-4 py-2 rounded-xl border border-green-500/50 shadow-xl animate-float delay-500">
+              <p className="text-xs font-bold text-green-400">🌐 IoT</p>
             </div>
 
-            <div className="absolute top-1/4 -right-10 bg-gray-800/90 backdrop-blur-sm px-5 py-3 rounded-xl border border-purple-500/50 shadow-xl animate-float delay-300">
-              <p className="text-sm font-bold text-purple-400">🔐 Security</p>
-            </div>
-
-            <div className="absolute -bottom-10 right-20 bg-gray-800/90 backdrop-blur-sm px-5 py-3 rounded-xl border border-pink-500/50 shadow-xl animate-float delay-700">
-              <p className="text-sm font-bold text-pink-400">✨ And More...</p>
+            <div className="absolute top-1/2 -right-10 -translate-y-1/2 bg-gray-800/90 backdrop-blur-sm px-4 py-2 rounded-xl border border-purple-500/50 shadow-xl animate-float delay-300">
+              <p className="text-xs font-bold text-purple-400">🔐 Security</p>
             </div>
           </div>
         </div>
