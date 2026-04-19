@@ -143,12 +143,52 @@ Create `.env` files as needed (frontend/backend). Example keys you may require:
 
 ---
 
-## Screenshots
+<h2>Screenshots</h2>
 
-- Home page UI
-- Admin dashboard
-- Create/Edit project pages
+<h3>Landing Page</h3>
+<p align="center">
+  <img src="./screenshots/Landing%20Page.png" width="900" alt="Landing Page" />
+</p>
 
+<h3>Projects Section</h3>
+<p align="center">
+  <img src="./screenshots/Projects%20Section.png" width="900" alt="Projects Section" />
+</p>
+
+<h3>About Me Section</h3>
+<p align="center">
+  <img src="./screenshots/About%20me%20section.png" width="900" alt="About me section" />
+</p>
+
+<h3>Contact</h3>
+<p align="center">
+  <img src="./screenshots/Contact%20me.png" width="900" alt="Contact me" />
+</p>
+
+<h3>Admin Dashboard</h3>
+<p align="center">
+  <img src="./screenshots/Admin%20Dashboard.png" width="900" alt="Admin Dashboard" />
+</p>
+
+<h3>Add New Project (Admin)</h3>
+<p align="center">
+  <img src="./screenshots/Add%20New%20Project.png" width="900" alt="Add New Project" />
+</p>
+
+<h3>Edit Project (Admin)</h3>
+<p align="center">
+  <img src="./screenshots/Edit%20project.png" width="900" alt="Edit project" />
+</p>
+
+<h3>Site Settings (Admin)</h3>
+<p align="center">
+  <img src="./screenshots/Site%20Settings.png" width="900" alt="Site Settings" />
+</p>
+
+<h3>Sign out + Login Page</h3>
+<p align="center">
+  <img src="./screenshots/signout%20and%20login%20page.png" width="900" alt="signout and login page" />
+</p>
 
 ---
 
