@@ -97,7 +97,7 @@ export default function Home() {
       {/* Always show content */}
       <Hero hero={settings.hero} />
       <FeaturedProjects />
-      <AboutSection about={settings.about} />
+      <AboutSection about={settings.about} resumeUrl={settings.hero?.resumeUrl} />
       <ContactSection contact={settings.contact} />
     </>
   );

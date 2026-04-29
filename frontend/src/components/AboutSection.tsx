@@ -1,30 +1,80 @@
-import { Code2, Rocket, Award, Network, Github, Linkedin, Mail, GraduationCap } from "lucide-react";
+import {
+  Code2,
+  Rocket,
+  Award,
+  Network,
+  Github,
+  Linkedin,
+  Mail,
+  GraduationCap,
+} from "lucide-react";
 import type { AboutSettings } from "../services/settingsApi";
 
 interface AboutSectionProps {
   about: AboutSettings;
+  resumeUrl?: string;
 }
 
-export default function AboutSection({ about }:  AboutSectionProps) {
+export default function AboutSection({ about, resumeUrl }: AboutSectionProps) {
   // Use skills from settings, fallback to defaults if empty
-  const skills = about.skills && about.skills.length > 0 
-    ? about.skills 
-    : [
-        "React", "TypeScript", "Node.js", "Express", "MongoDB", "PostgreSQL",
-        "Python", "C++", "JavaScript", "TailwindCSS", "AWS", "Azure",
-        "Docker", "Git", "CI/CD", "Jenkins", "GitLab", "REST APIs",
-        "Cisco CCNA", "Network Security", "IoT", "Linux", "Agile/Scrum"
-      ];
+  const skills =
+    about.skills && about.skills.length > 0
+      ? about.skills
+      : [
+          "React",
+          "TypeScript",
+          "Node.js",
+          "Express",
+          "MongoDB",
+          "PostgreSQL",
+          "Python",
+          "C++",
+          "JavaScript",
+          "TailwindCSS",
+          "AWS",
+          "Azure",
+          "Docker",
+          "Git",
+          "CI/CD",
+          "Jenkins",
+          "GitLab",
+          "REST APIs",
+          "Cisco CCNA",
+          "Network Security",
+          "IoT",
+          "Linux",
+          "Agile/Scrum",
+        ];
 
   const stats = [
-    { icon: Code2, label: "GitHub Repos", value: "20+", color: "from-indigo-600 to-purple-600" },
-    { icon: Rocket, label: "Years Experience", value: "3+", color: "from-purple-600 to-pink-600" },
-    { icon: Award, label: "Certifications", value: "10+", color: "from-pink-600 to-red-600" },
-    { icon: Network, label: "Projects Completed", value: "15+", color: "from-cyan-600 to-blue-600" },
+    {
+      icon: Code2,
+      label: "GitHub Repos",
+      value: "20+",
+      color: "from-indigo-600 to-purple-600",
+    },
+    {
+      icon: Rocket,
+      label: "Years Experience",
+      value: "3+",
+      color: "from-purple-600 to-pink-600",
+    },
+    {
+      icon: Award,
+      label: "Certifications",
+      value: "10+",
+      color: "from-pink-600 to-red-600",
+    },
+    {
+      icon: Network,
+      label: "Projects Completed",
+      value: "15+",
+      color: "from-cyan-600 to-blue-600",
+    },
   ];
 
   const certifications = [
-    { name:  "Cisco CCNA - Switching, Routing & Wireless", year: "2022", icon: "🔒" },
+    { name: "Cisco CCNA - Switching, Routing & Wireless", year: "2022", icon: "🔒" },
     { name: "Cisco CCNA - Enterprise Networking & Security", year: "2023", icon: "🛡️" },
     { name: "AWS Academy Cloud Foundations", year: "2023", icon: "☁️" },
     { name: "Complete Web Development Bootcamp", year: "2024", icon: "💻" },
@@ -33,9 +83,24 @@ export default function AboutSection({ about }:  AboutSectionProps) {
   ];
 
   const socialLinks = [
-    { icon:  Github, href: "https://github.com/AYZBTR", label: "GitHub", color: "hover:text-purple-400" },
-    { icon: Linkedin, href: "https://www.linkedin.com/in/ayzbtr/", label: "LinkedIn", color:  "hover:text-blue-400" },
-    { icon: Mail, href: "mailto: bhattaraiaayush. 78@gmail.com", label: "Email", color: "hover:text-indigo-400" },
+    {
+      icon: Github,
+      href: "https://github.com/AYZBTR",
+      label: "GitHub",
+      color: "hover:text-purple-400",
+    },
+    {
+      icon: Linkedin,
+      href: "https://www.linkedin.com/in/ayzbtr/",
+      label: "LinkedIn",
+      color: "hover:text-blue-400",
+    },
+    {
+      icon: Mail,
+      href: "mailto:bhattaraiaayush.78@gmail.com",
+      label: "Email",
+      color: "hover:text-indigo-400",
+    },
   ];
 
   return (
@@ -64,9 +129,9 @@ export default function AboutSection({ about }:  AboutSectionProps) {
         </div>
 
         <div className="grid md:grid-cols-2 gap-12 items-start mb-16">
-          {/* Left:  Story */}
+          {/* Left: Story */}
           <div className="space-y-6 animate-fadeIn">
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 hover: border-indigo-500/50 transition-all duration-300">
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-8 border border-gray-700 hover:border-indigo-500/50 transition-all duration-300">
               <h3 className="text-3xl font-bold text-white mb-4 flex items-center gap-3">
                 <span className="w-12 h-12 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
                   👨‍💻
@@ -74,7 +139,8 @@ export default function AboutSection({ about }:  AboutSectionProps) {
                 My Story
               </h3>
               <div className="text-gray-300 text-lg leading-relaxed whitespace-pre-wrap">
-                {about.description || "I'm a passionate Full-Stack & Network Engineer focused on building modern, fast, and scalable web applications. "}
+                {about.description ||
+                  "I'm a passionate Full-Stack & Network Engineer focused on building modern, fast, and scalable web applications. "}
               </div>
             </div>
 
@@ -105,13 +171,16 @@ export default function AboutSection({ about }:  AboutSectionProps) {
                 {socialLinks.map((social) => (
                   <a
                     key={social.label}
-                    href={social. href}
+                    href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`flex-1 flex items-center justify-center gap-2 p-4 bg-gray-700/50 hover:bg-gradient-to-r hover:from-indigo-500/20 hover:to-purple-500/20 rounded-lg border border-gray-600 hover:border-indigo-500/50 transition-all duration-300 group`}
+                    className="flex-1 flex items-center justify-center gap-2 p-4 bg-gray-700/50 hover:bg-gradient-to-r hover:from-indigo-500/20 hover:to-purple-500/20 rounded-lg border border-gray-600 hover:border-indigo-500/50 transition-all duration-300 group"
                     title={social.label}
                   >
-                    <social.icon size={20} className={`text-gray-400 ${social.color} transition-colors`} />
+                    <social.icon
+                      size={20}
+                      className={`text-gray-400 ${social.color} transition-colors`}
+                    />
                     <span className="text-gray-300 group-hover:text-white transition-colors font-medium text-sm">
                       {social.label}
                     </span>
@@ -131,7 +200,9 @@ export default function AboutSection({ about }:  AboutSectionProps) {
                   className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 hover:border-indigo-500/50 transition-all duration-300 transform hover:-translate-y-1 group animate-fadeIn"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
+                  <div
+                    className={`w-12 h-12 bg-gradient-to-r ${stat.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
+                  >
                     <stat.icon size={24} className="text-white" />
                   </div>
                   <p className="text-3xl font-bold text-white mb-2">{stat.value}</p>
@@ -168,14 +239,26 @@ export default function AboutSection({ about }:  AboutSectionProps) {
             </div>
 
             {/* Download Resume */}
-            <a
-              href="/resume.pdf"
-              download
-              className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl font-bold text-white shadow-xl shadow-indigo-500/50 transform hover:scale-105 transition-all duration-300"
-            >
-              <Award size={20} />
-              Download Resume
-            </a>
+            {resumeUrl ? (
+              <a
+                href={resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl font-bold text-white shadow-xl shadow-indigo-500/50 transform hover:scale-105 transition-all duration-300"
+              >
+                <Award size={20} />
+                Download Resume
+              </a>
+            ) : (
+              <button
+                disabled
+                className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-gray-700/50 rounded-xl font-bold text-gray-300 border border-gray-600 cursor-not-allowed"
+                title="Resume not uploaded yet"
+              >
+                <Award size={20} />
+                Resume not available yet
+              </button>
+            )}
           </div>
         </div>
 
@@ -190,7 +273,7 @@ export default function AboutSection({ about }:  AboutSectionProps) {
             {skills.map((skill, index) => (
               <div
                 key={skill}
-                className="px-6 py-3 bg-gray-800/50 backdrop-blur-sm rounded-full border border-gray-700 hover: border-indigo-500 hover:bg-gradient-to-r hover:from-indigo-500/20 hover:to-purple-500/20 transition-all duration-300 transform hover:scale-110 group animate-fadeIn"
+                className="px-6 py-3 bg-gray-800/50 backdrop-blur-sm rounded-full border border-gray-700 hover:border-indigo-500 hover:bg-gradient-to-r hover:from-indigo-500/20 hover:to-purple-500/20 transition-all duration-300 transform hover:scale-110 group animate-fadeIn"
                 style={{ animationDelay: `${index * 30}ms` }}
               >
                 <span className="text-gray-300 group-hover:text-white font-medium transition-colors">

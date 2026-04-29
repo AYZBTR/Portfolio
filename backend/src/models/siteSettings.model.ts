@@ -7,6 +7,7 @@ export interface IHeroSettings {
   primaryCtaLabel: string;
   secondaryCtaLabel: string;
   heroImageUrl:  string;
+  resumeUrl: string;
 }
 
 export interface IAboutSettings {
@@ -44,6 +45,7 @@ const HeroSchema = new Schema<IHeroSettings>({
   primaryCtaLabel: { type: String, default: "View Projects" },
   secondaryCtaLabel: { type: String, default: "Contact Me" },
   heroImageUrl: { type: String, default: "" },
+  resumeUrl: { type: String, default: "" },
 });
 
 const AboutSchema = new Schema<IAboutSettings>({

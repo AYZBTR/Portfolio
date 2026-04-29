@@ -3,6 +3,7 @@ import {
   fetchSiteSettings,
   updateSiteSettings,
   uploadImage,
+  uploadResume, // ✅ NEW
 } from "../../services/settingsApi";
 import type { SiteSettings } from "../../services/settingsApi";
 import ImageCropper from "../../components/ImageCropper";
@@ -15,7 +16,7 @@ export default function SiteSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // file upload + crop state
+  // image upload + crop state
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -24,6 +25,10 @@ export default function SiteSettingsPage() {
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+
+  // ✅ NEW: resume upload state
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeUploading, setResumeUploading] = useState(false);
 
   const token = localStorage.getItem("token") || "";
 
@@ -53,22 +58,22 @@ export default function SiteSettingsPage() {
   const handleHeroChange =
     (field: keyof SiteSettings["hero"]) =>
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      if (! settings) return;
+      if (!settings) return;
       setSettings({
         ...settings,
         hero: {
           ...settings.hero,
-          [field]: e. target.value,
+          [field]: e.target.value,
         },
       });
     };
 
   const handleAboutChange =
-    (field:  keyof SiteSettings["about"]) =>
+    (field: keyof SiteSettings["about"]) =>
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (!settings) return;
 
-      // Special:  skills as comma-separated
+      // Special: skills as comma-separated
       if (field === "skills") {
         const value = e.target.value;
         const skillsArray = value
@@ -87,7 +92,7 @@ export default function SiteSettingsPage() {
         setSettings({
           ...settings,
           about: {
-            ... settings.about,
+            ...settings.about,
             [field]: e.target.value,
           },
         });
@@ -95,7 +100,7 @@ export default function SiteSettingsPage() {
     };
 
   const handleContactChange =
-    (field: 'email' | 'location') =>
+    (field: "email" | "location") =>
     (e: ChangeEvent<HTMLInputElement>) => {
       if (!settings) return;
       setSettings({
@@ -107,24 +112,21 @@ export default function SiteSettingsPage() {
       });
     };
 
-  // NEW: Social Links handlers
+  // Social Links handlers
   const addSocialLink = () => {
     if (!settings) return;
     setSettings({
       ...settings,
       contact: {
         ...settings.contact,
-        socialLinks: [
-          ... settings.contact.socialLinks,
-          { platform: "GitHub", url: "" }
-        ],
+        socialLinks: [...settings.contact.socialLinks, { platform: "GitHub", url: "" }],
       },
     });
   };
 
   const removeSocialLink = (index: number) => {
     if (!settings) return;
-    const newLinks = settings.contact.socialLinks. filter((_, i) => i !== index);
+    const newLinks = settings.contact.socialLinks.filter((_, i) => i !== index);
     setSettings({
       ...settings,
       contact: {
@@ -134,10 +136,10 @@ export default function SiteSettingsPage() {
     });
   };
 
-  const updateSocialLink = (index: number, field: 'platform' | 'url', value:  string) => {
+  const updateSocialLink = (index: number, field: "platform" | "url", value: string) => {
     if (!settings) return;
     const newLinks = [...settings.contact.socialLinks];
-    newLinks[index] = { ... newLinks[index], [field]:  value };
+    newLinks[index] = { ...newLinks[index], [field]: value };
     setSettings({
       ...settings,
       contact: {
@@ -147,27 +149,26 @@ export default function SiteSettingsPage() {
     });
   };
 
-  // when user selects a file, open the cropper modal (don't set `file` yet)
+  // when user selects an image, open the cropper modal (don't set `file` yet)
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files && e.target.files[0];
-    if (! f) return;
-    // optional: client-side validation (type & size)
-    if (!f.type. startsWith("image/")) {
+    if (!f) return;
+
+    if (!f.type.startsWith("image/")) {
       setError("Please select an image file.");
       return;
     }
-    if (f. size > 10 * 1024 * 1024) {
+    if (f.size > 10 * 1024 * 1024) {
       setError("Image must be smaller than 10MB.");
       return;
     }
 
-    // prepare cropper
     if (cropSrc) {
       URL.revokeObjectURL(cropSrc);
       setCropSrc(null);
     }
     const src = URL.createObjectURL(f);
-    setSelectedFileName(f.name || "cropped. png");
+    setSelectedFileName(f.name || "cropped.png");
     setCropSrc(src);
     setShowCropper(true);
     setError(null);
@@ -181,12 +182,10 @@ export default function SiteSettingsPage() {
     });
     setFile(croppedFile);
 
-    // set preview (revoke previous preview if any)
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     const url = URL.createObjectURL(croppedFile);
     setPreviewUrl(url);
 
-    // cleanup crop src
     if (cropSrc) {
       URL.revokeObjectURL(cropSrc);
       setCropSrc(null);
@@ -197,11 +196,60 @@ export default function SiteSettingsPage() {
   const uploadFileToServer = async (fileToUpload: File) => {
     setUploading(true);
     try {
-      // use the shared service (axios) helper - it uses api baseURL/interceptors
       const url = await uploadImage(fileToUpload, token);
       return url;
     } finally {
       setUploading(false);
+    }
+  };
+
+  // ✅ NEW: resume select
+  const handleResumeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+
+    if (f.type !== "application/pdf") {
+      setError("Please select a PDF file.");
+      return;
+    }
+    if (f.size > 10 * 1024 * 1024) {
+      setError("Resume must be smaller than 10MB.");
+      return;
+    }
+
+    setResumeFile(f);
+    setError(null);
+    setSuccess(null);
+  };
+
+  // ✅ NEW: upload resume now (sets settings.hero.resumeUrl)
+  const handleUploadResume = async () => {
+    if (!settings) return;
+    if (!resumeFile) {
+      setError("Please choose a PDF resume file first.");
+      return;
+    }
+
+    setResumeUploading(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const url = await uploadResume(resumeFile, token);
+      setSettings({
+        ...settings,
+        hero: {
+          ...settings.hero,
+          resumeUrl: url,
+        },
+      });
+      setResumeFile(null);
+      setSuccess("Resume uploaded. Now click 'Save Changes' to publish it.");
+    } catch (err) {
+      console.error("Resume upload failed:", err);
+      setError("Resume upload failed. Please try again.");
+    } finally {
+      setResumeUploading(false);
     }
   };
 
@@ -214,18 +262,17 @@ export default function SiteSettingsPage() {
     try {
       let updatedSettings = { ...settings };
 
-      // If a (cropped) file is selected, upload it first and set heroImageUrl
+      // If a (cropped) image is selected, upload it first and set heroImageUrl
       if (file) {
         try {
           const uploadedUrl = await uploadFileToServer(file);
           updatedSettings = {
             ...updatedSettings,
             hero: {
-              ... updatedSettings.hero,
+              ...updatedSettings.hero,
               heroImageUrl: uploadedUrl,
             },
           };
-          // clear file & preview after successful upload
           setFile(null);
           if (previewUrl) {
             URL.revokeObjectURL(previewUrl);
@@ -258,23 +305,22 @@ export default function SiteSettingsPage() {
     );
   }
 
-  if (! settings) {
+  if (!settings) {
     return (
       <div className="min-h-screen bg-slate-900 text-red-300 flex items-center justify-center pt-16">
-        Could not load site settings. 
+        Could not load site settings.
       </div>
     );
   }
 
-  const skillsAsText = settings.about. skills. join(", ");
+  const skillsAsText = settings.about.skills.join(", ");
 
   return (
     <div className="bg-slate-900 text-slate-100 px-4 py-8 pt-24 pb-16">
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Site Settings</h1>
         <p className="text-slate-400 mb-6">
-          Update the content of your landing page.  Changes will reflect on the
-          public site. 
+          Update the content of your landing page. Changes will reflect on the public site.
         </p>
 
         {error && (
@@ -330,9 +376,7 @@ export default function SiteSettingsPage() {
               </div>
 
               <div>
-                <label className="block text-sm mb-1">
-                  Subtitle / Description
-                </label>
+                <label className="block text-sm mb-1">Subtitle / Description</label>
                 <textarea
                   className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500"
                   rows={3}
@@ -343,19 +387,15 @@ export default function SiteSettingsPage() {
 
               <div className="flex flex-col md:flex-row gap-4">
                 <div className="flex-1">
-                  <label className="block text-sm mb-1">
-                    Primary Button Label
-                  </label>
+                  <label className="block text-sm mb-1">Primary Button Label</label>
                   <input
                     className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500"
-                    value={settings. hero.primaryCtaLabel}
+                    value={settings.hero.primaryCtaLabel}
                     onChange={handleHeroChange("primaryCtaLabel")}
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-sm mb-1">
-                    Secondary Button Label
-                  </label>
+                  <label className="block text-sm mb-1">Secondary Button Label</label>
                   <input
                     className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500"
                     value={settings.hero.secondaryCtaLabel}
@@ -379,12 +419,8 @@ export default function SiteSettingsPage() {
               {/* Image upload + preview */}
               <div className="flex items-start gap-4 mt-2">
                 <div className="w-48 h-28 bg-slate-900 border border-slate-700 rounded overflow-hidden flex items-center justify-center">
-                  {previewUrl ?  (
-                    <img
-                      src={previewUrl}
-                      alt="preview"
-                      className="object-cover w-full h-full"
-                    />
+                  {previewUrl ? (
+                    <img src={previewUrl} alt="preview" className="object-cover w-full h-full" />
                   ) : settings.hero.heroImageUrl ? (
                     <img
                       src={settings.hero.heroImageUrl}
@@ -427,8 +463,59 @@ export default function SiteSettingsPage() {
                       Reset
                     </button>
                   </div>
-                  <p className="text-xs text-slate-400 mt-2">
-                    Max size: 10MB.  Accepted:  images. 
+                  <p className="text-xs text-slate-400 mt-2">Max size: 10MB. Accepted: images.</p>
+                </div>
+              </div>
+
+              {/* ✅ Resume Upload */}
+              <div className="mt-6 border border-indigo-500/30 rounded-xl p-4 bg-indigo-500/5">
+                <label className="block text-sm font-semibold text-slate-200 mb-2">
+                  Resume (PDF)
+                </label>
+
+                <div className="space-y-2">
+                  <div className="text-xs text-slate-400 break-all">
+                    Current resumeUrl:{" "}
+                    <span className="text-slate-200">
+                      {settings.hero.resumeUrl || "Not set"}
+                    </span>
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleResumeChange}
+                    className="text-sm text-slate-200"
+                  />
+
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleUploadResume}
+                      disabled={resumeUploading || !resumeFile}
+                      className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60"
+                    >
+                      {resumeUploading ? "Uploading…" : "Upload Resume"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!settings) return;
+                        setSettings({
+                          ...settings,
+                          hero: { ...settings.hero, resumeUrl: "" },
+                        });
+                        setSuccess("Resume URL cleared. Click 'Save Changes' to publish.");
+                      }}
+                      className="px-4 py-2 rounded-md bg-slate-700 hover:bg-slate-600"
+                    >
+                      Clear URL
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-slate-400">
+                    Upload a PDF. After upload, click <b>Save Changes</b> to publish it.
                   </p>
                 </div>
               </div>
@@ -454,15 +541,13 @@ export default function SiteSettingsPage() {
                 <textarea
                   className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500"
                   rows={4}
-                  value={settings. about.description}
+                  value={settings.about.description}
                   onChange={handleAboutChange("description")}
                 />
               </div>
 
               <div>
-                <label className="block text-sm mb-1">
-                  Skills (comma separated)
-                </label>
+                <label className="block text-sm mb-1">Skills (comma separated)</label>
                 <input
                   className="w-full px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500"
                   value={skillsAsText}
@@ -472,7 +557,7 @@ export default function SiteSettingsPage() {
             </div>
           </section>
 
-          {/* CONTACT SETTINGS - WITH DYNAMIC SOCIAL LINKS */}
+          {/* CONTACT SETTINGS */}
           <section className="bg-slate-800/70 border border-slate-700 rounded-2xl p-5 shadow-md">
             <h2 className="text-2xl font-semibold mb-4">Contact Section</h2>
 
@@ -495,12 +580,10 @@ export default function SiteSettingsPage() {
                 />
               </div>
 
-              {/* DYNAMIC SOCIAL LINKS - NEW!  */}
+              {/* DYNAMIC SOCIAL LINKS */}
               <div className="border border-indigo-500/30 rounded-xl p-4 bg-indigo-500/5 mt-4">
                 <div className="flex items-center justify-between mb-3">
-                  <label className="text-sm font-semibold text-slate-200">
-                    Social Links
-                  </label>
+                  <label className="text-sm font-semibold text-slate-200">Social Links</label>
                   <button
                     type="button"
                     onClick={addSocialLink}
@@ -516,7 +599,7 @@ export default function SiteSettingsPage() {
                     <div key={index} className="flex gap-2">
                       <select
                         value={link.platform}
-                        onChange={(e) => updateSocialLink(index, 'platform', e.target.value)}
+                        onChange={(e) => updateSocialLink(index, "platform", e.target.value)}
                         className="px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500 text-sm text-slate-200"
                       >
                         <option value="GitHub">GitHub</option>
@@ -538,7 +621,7 @@ export default function SiteSettingsPage() {
                       <input
                         type="url"
                         value={link.url}
-                        onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
+                        onChange={(e) => updateSocialLink(index, "url", e.target.value)}
                         placeholder="https://..."
                         className="flex-1 px-3 py-2 rounded-md bg-slate-900 border border-slate-700 focus:outline-none focus:border-indigo-500 text-sm text-slate-200"
                       />
@@ -556,13 +639,13 @@ export default function SiteSettingsPage() {
 
                   {settings.contact.socialLinks.length === 0 && (
                     <p className="text-slate-500 text-sm text-center py-4">
-                      No social links yet. Click "Add Link" to get started! 
+                      No social links yet. Click "Add Link" to get started!
                     </p>
                   )}
                 </div>
 
                 <p className="text-xs text-slate-400 mt-3">
-                  💡 Add your social media profiles.  They'll appear in your About and Contact sections! 
+                  💡 Add your social media profiles. They'll appear in your About and Contact sections!
                 </p>
               </div>
             </div>
@@ -572,10 +655,10 @@ export default function SiteSettingsPage() {
         <div className="mt-8">
           <button
             onClick={handleSave}
-            disabled={saving || uploading}
+            disabled={saving || uploading || resumeUploading}
             className="px-6 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 font-semibold disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            {saving || uploading ? "Saving…" : "Save Changes"}
+            {saving || uploading || resumeUploading ? "Saving…" : "Save Changes"}
           </button>
         </div>
       </div>

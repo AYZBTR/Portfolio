@@ -7,6 +7,9 @@ export interface HeroSettings {
   primaryCtaLabel: string;
   secondaryCtaLabel: string;
   heroImageUrl: string;
+
+  // ✅ NEW
+  resumeUrl?: string;
 }
 
 export interface AboutSettings {
@@ -15,7 +18,6 @@ export interface AboutSettings {
   skills: string[];
 }
 
-// Social Link interface
 export interface SocialLink {
   platform: string;
   url: string;
@@ -33,60 +35,42 @@ export interface SiteSettings {
   contact: ContactSettings;
 }
 
-// Helper function to retry requests
-async function retryRequest<T>(
-  requestFn: () => Promise<T>,
-  maxRetries: number = 2,
-  delay: number = 2000
-): Promise<T> {
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      return await requestFn();
-    } catch (error) {
-      if (i === maxRetries - 1) throw error;
-      console.log(`Retry ${i + 1}/${maxRetries} after ${delay}ms...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-  throw new Error("Max retries reached");
-}
-
 export async function fetchSiteSettings(): Promise<SiteSettings> {
-  return retryRequest(async () => {
-    const res = await api.get<SiteSettings>("/settings");
-    return res.data;
-  });
+  const res = await api.get<SiteSettings>("/settings");
+  return res.data;
 }
 
 export async function updateSiteSettings(
-  data: Partial<SiteSettings>,
+  data: SiteSettings,
   token?: string
 ): Promise<SiteSettings> {
-  const config = token
-    ? { headers: { Authorization: `Bearer ${token}` } }
-    : undefined;
-
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
   const res = await api.put<SiteSettings>("/settings", data, config);
   return res.data;
 }
 
+/**
+ * Existing image upload helper (already used in your admin page)
+ * uploads to POST /uploads
+ */
 export async function uploadImage(file: File, token?: string): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const config = {
-    headers: {
-      "Content-Type": "multipart/form-data",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  };
-
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
   const res = await api.post<{ url: string }>("/uploads", formData, config);
   return res.data.url;
 }
 
-export default {
-  fetchSiteSettings,
-  updateSiteSettings,
-  uploadImage,
-};
+/**
+ * ✅ NEW: resume upload helper (PDF)
+ * uploads to POST /uploads/resume
+ */
+export async function uploadResume(file: File, token?: string): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
+  const res = await api.post<{ url: string }>("/uploads/resume", formData, config);
+  return res.data.url;
+}
