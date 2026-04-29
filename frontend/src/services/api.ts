@@ -5,12 +5,29 @@ const api = axios.create({
   timeout: 60000, // 60 second timeout for Render cold starts
 });
 
-// Intercept requests to add Clerk session token
+// Helper: decide if request needs auth header
+function shouldAttachAuth(config: any) {
+  const method = (config.method || "get").toLowerCase();
+  const url = (config.url || "").toString();
+
+  // Always attach token for mutations (admin actions)
+  if (["post", "put", "patch", "delete"].includes(method)) return true;
+
+  // Attach for specific GET endpoints that are protected (if you add any later)
+  // Example: /admin/*, /me, etc.
+  if (method === "get" && url.startsWith("/admin")) return true;
+
+  // Public GETs like /settings and /projects should not wait for Clerk
+  return false;
+}
+
+// Intercept requests to add Clerk session token (only when needed)
 api.interceptors.request.use(async (config) => {
   try {
-    // Get Clerk session token
-    const token = await window.Clerk?.session?.getToken();
-    
+    if (!shouldAttachAuth(config)) return config;
+
+    const token = await (window as any).Clerk?.session?.getToken();
+
     if (token) {
       config.headers = config.headers || {};
       config.headers.Authorization = `Bearer ${token}`;
@@ -21,7 +38,7 @@ api.interceptors.request.use(async (config) => {
   } catch (error) {
     console.error("Error getting Clerk token:", error);
   }
-  
+
   return config;
 });
 
@@ -29,13 +46,13 @@ api.interceptors.request.use(async (config) => {
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.code === 'ECONNABORTED') {
+    if (error.code === "ECONNABORTED") {
       console.error("Request timeout - server might be spinning up");
     }
-    
+
     // Log the error but don't break the app
     console.error("API Error:", error.message);
-    
+
     return Promise.reject(error);
   }
 );
