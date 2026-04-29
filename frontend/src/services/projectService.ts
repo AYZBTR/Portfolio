@@ -13,31 +13,39 @@ export interface Project {
   updatedAt?: string;
 }
 
-/**
- * ✅ FALLBACK PROJECTS (shown if API is down/sleeping/empty)
- * Replace/add your real projects here for best recruiter impact.
- */
 const FALLBACK_PROJECTS: Project[] = [
   {
     _id: "fallback-portfolio",
     title: "Full‑Stack Portfolio + Admin CMS Dashboard",
     description:
-      "Production-style portfolio with admin panel to manage projects and site settings. Protected routes, Clerk/JWT auth flow, and Cloudinary image uploads.",
+      "Portfolio with admin CMS to manage projects and site settings. Includes Cloudinary uploads and protected admin routes.",
     tags: ["React", "TypeScript", "Node.js", "MongoDB", "Cloudinary"],
-    imageUrl: "", // optional: add a hosted image URL
+    imageUrl: "",
     images: [],
     githubUrl: "https://github.com/AYZBTR/Portfolio",
-    liveDemoUrl: "", // optional: add your deployed URL
+    liveDemoUrl: "",
   },
 ];
 
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function getProjects(): Promise<Project[]> {
   try {
-    const res = await api.get<Project[]>("/projects");
-    const data = res.data ?? [];
+    // ✅ Race the API call vs a short timeout.
+    // If API is slow (Render cold start), we show fallback immediately.
+    const apiPromise = api.get<Project[]>("/projects").then((r) => r.data ?? []);
+    const timeoutPromise = delay(2500).then(() => "timeout" as const);
 
-    // If server returns empty, still show fallback so UI isn't blank
-    return data.length > 0 ? data : FALLBACK_PROJECTS;
+    const result = await Promise.race([apiPromise, timeoutPromise]);
+
+    if (result === "timeout") {
+      console.warn("Projects API slow; showing fallback projects.");
+      return FALLBACK_PROJECTS;
+    }
+
+    return result.length > 0 ? result : FALLBACK_PROJECTS;
   } catch (error) {
     console.error("Error fetching projects:", error);
     return FALLBACK_PROJECTS;
@@ -45,33 +53,17 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export async function getProjectById(id: string): Promise<Project> {
-  try {
-    console.log("🔍 Fetching project with ID:", id);
-    const res = await api.get<Project>(`/projects/${id}`);
-    console.log("✅ Project fetched:", res.data);
-    return res.data;
-  } catch (error) {
-    console.error("❌ Error fetching project by ID:", error);
-    throw error;
-  }
+  const res = await api.get<Project>(`/projects/${id}`);
+  return res.data;
 }
 
 export async function createProject(
   data: Partial<Project>,
   token?: string
 ): Promise<Project> {
-  try {
-    const config = token
-      ? { headers: { Authorization: `Bearer ${token}` } }
-      : undefined;
-
-    const res = await api.post<Project>("/projects", data, config);
-    console.log("✅ Project created:", res.data);
-    return res.data;
-  } catch (error) {
-    console.error("❌ Error creating project:", error);
-    throw error;
-  }
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
+  const res = await api.post<Project>("/projects", data, config);
+  return res.data;
 }
 
 export async function updateProject(
@@ -79,34 +71,14 @@ export async function updateProject(
   data: Partial<Project>,
   token?: string
 ): Promise<Project> {
-  try {
-    console.log("📝 Updating project:", id, data);
-
-    const config = token
-      ? { headers: { Authorization: `Bearer ${token}` } }
-      : undefined;
-
-    const res = await api.put<Project>(`/projects/${id}`, data, config);
-    console.log("✅ Project updated:", res.data);
-    return res.data;
-  } catch (error) {
-    console.error("❌ Error updating project:", error);
-    throw error;
-  }
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
+  const res = await api.put<Project>(`/projects/${id}`, data, config);
+  return res.data;
 }
 
 export async function deleteProject(id: string, token?: string): Promise<void> {
-  try {
-    const config = token
-      ? { headers: { Authorization: `Bearer ${token}` } }
-      : undefined;
-
-    await api.delete(`/projects/${id}`, config);
-    console.log("✅ Project deleted:", id);
-  } catch (error) {
-    console.error("❌ Error deleting project:", error);
-    throw error;
-  }
+  const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
+  await api.delete(`/projects/${id}`, config);
 }
 
 export default {

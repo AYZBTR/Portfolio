@@ -1,183 +1,149 @@
 import { useEffect, useState } from "react";
 import { getProjects } from "../services/projectService";
+import type { Project } from "../services/projectService";
 import { Link } from "react-router-dom";
 
 const FeaturedProjects = () => {
-  const [projects, setProjects] = useState<any[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let mounted = true;
+
     const loadProjects = async () => {
-      const data = await getProjects();
-      setProjects(data);
-      setLoading(false);
+      try {
+        const data = await getProjects();
+        if (!mounted) return;
+        setProjects(data);
+      } finally {
+        if (!mounted) return;
+        setLoading(false);
+      }
     };
 
     loadProjects();
+    return () => {
+      mounted = false;
+    };
   }, []);
-
-  if (loading) {
-    return (
-      <section className="px-10 md:px-20 py-20">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
-          <p className="text-gray-400 mt-4">Loading amazing projects...</p>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section
       id="projects"
       data-scroll-section
-      className="px-6 md:px-20 py-20 bg-gradient-to-b from-transparent to-gray-900/50"
+      className="px-10 md:px-20 py-20"
     >
       <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="text-center mb-16 animate-fadeIn">
-          <div className="inline-block px-4 py-2 bg-indigo-500/20 rounded-full border border-indigo-500/30 backdrop-blur-sm mb-4">
-            <p className="text-indigo-400 text-sm font-medium tracking-widest uppercase">
-              Portfolio
-            </p>
-          </div>
-          <h2 className="text-5xl md:text-6xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              Featured Projects
-            </span>
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-10">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-white">
+            Featured Projects
           </h2>
-          <p className="text-gray-400 text-xl max-w-2xl mx-auto">
-            Explore my recent work and side projects
-          </p>
+
+          {loading && (
+            <div className="flex items-center gap-3 text-sm text-blue-200 bg-blue-500/20 border border-blue-500/30 px-4 py-2 rounded-lg">
+              <span className="inline-block animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-300" />
+              Loading projects…
+            </div>
+          )}
         </div>
 
-        {projects.length === 0 ? (
+        {/* Loading skeleton */}
+        {loading && projects.length === 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-gray-800/50 border border-gray-700 rounded-2xl overflow-hidden"
+              >
+                <div className="h-48 bg-gray-700/40 animate-pulse" />
+                <div className="p-6 space-y-3">
+                  <div className="h-5 w-2/3 bg-gray-700/40 rounded animate-pulse" />
+                  <div className="h-4 w-full bg-gray-700/30 rounded animate-pulse" />
+                  <div className="h-4 w-5/6 bg-gray-700/30 rounded animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Real content */}
+        {!loading && projects.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-8xl mb-6">📂</div>
             <p className="text-gray-400 text-2xl mb-4">No projects yet</p>
             <p className="text-gray-500">Check back soon for exciting updates!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((proj, index) => (
-              <div
-                key={proj._id}
-                className="group relative bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700 hover:border-indigo-500 transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/20 transform hover:-translate-y-2 animate-fadeIn"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                {/* Clickable Project Image - Opens Detail Page */}
-                <Link
-                  to={`/projects/${proj._id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block relative h-56 overflow-hidden bg-gradient-to-br from-indigo-600/20 to-purple-600/20 cursor-pointer"
+          projects.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {projects.map((proj, index) => (
+                <div
+                  key={proj._id}
+                  className="group relative bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700 hover:border-indigo-500 transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/20 transform hover:-translate-y-2 animate-fadeIn"
+                  style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  {proj.image || proj.imageUrl ?  (
-                    <>
-                      <img
-                        src={proj.image || proj.imageUrl}
-                        alt={proj.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      {/* Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-                    </>
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-7xl group-hover:scale-110 transition-transform duration-300">💻</span>
+                  <Link to={`/projects/${proj._id}`}>
+                    <div className="h-48 bg-gray-900 overflow-hidden">
+                      {proj.imageUrl ? (
+                        <img
+                          src={proj.imageUrl}
+                          alt={proj.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-500">
+                          No image
+                        </div>
+                      )}
                     </div>
-                  )}
-                  
-                  {/* Quick view badge */}
-                  <div className="absolute top-4 right-4 px-3 py-1 bg-indigo-500 rounded-full text-xs font-bold text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    View Project
-                  </div>
-                </Link>
-
-                {/* Content */}
-                <div className="p-6 space-y-4">
-                  {/* Clickable Title */}
-                  <Link
-                    to={`/projects/${proj._id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <h3 className="text-2xl font-bold text-white group-hover:text-indigo-400 transition-colors duration-300 cursor-pointer hover:underline">
-                      {proj. title}
-                    </h3>
                   </Link>
-                  
-                  <p className="text-gray-400 line-clamp-2 leading-relaxed">
-                    {proj.description}
-                  </p>
 
-                  {/* Tags */}
-                  {proj.tags && proj.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {proj.tags. slice(0, 4).map((tag:  string, i: number) => (
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-white mb-2">
+                      {proj.title}
+                    </h3>
+                    <p className="text-gray-400 text-sm leading-relaxed line-clamp-3">
+                      {proj.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      {(proj.tags || []).slice(0, 4).map((tag, i) => (
                         <span
-                          key={i}
-                          className="px-3 py-1 bg-indigo-500/20 text-indigo-400 text-xs font-medium rounded-full border border-indigo-500/30 hover:bg-indigo-500/30 transition-colors"
+                          key={`${proj._id}-${tag}-${i}`}
+                          className="text-xs px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/20"
                         >
                           {tag}
                         </span>
                       ))}
-                      {proj.tags.length > 4 && (
-                        <span className="px-3 py-1 bg-gray-700/50 text-gray-400 text-xs rounded-full">
-                          +{proj.tags.length - 4} more
-                        </span>
+                    </div>
+
+                    <div className="mt-6 flex gap-3">
+                      {proj.githubUrl && (
+                        <a
+                          href={proj.githubUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm transition"
+                        >
+                          GitHub
+                        </a>
+                      )}
+                      {proj.liveDemoUrl && (
+                        <a
+                          href={proj.liveDemoUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm transition"
+                        >
+                          Live
+                        </a>
                       )}
                     </div>
-                  )}
-
-                  {/* Links */}
-                  <div className="flex gap-3 pt-4 border-t border-gray-700">
-                    {/* View Details Button */}
-                    <Link
-                      to={`/projects/${proj._id}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-center rounded-lg transition-all font-medium text-sm flex items-center justify-center gap-2 group/btn shadow-lg shadow-indigo-500/30"
-                    >
-                      <span>📖</span>
-                      <span className="group-hover/btn:translate-x-0.5 transition-transform">View Details</span>
-                    </Link>
-
-                    {/* GitHub Link */}
-                    {(proj.github || proj.githubUrl) && (
-                      <a
-                        href={proj. github || proj.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white text-center rounded-lg transition-all font-medium text-sm flex items-center justify-center gap-2 group/btn"
-                        title="View on GitHub"
-                      >
-                        <span>💻</span>
-                      </a>
-                    )}
-
-                    {/* Live Demo Link */}
-                    {(proj. live || proj.liveDemoUrl) && (
-                      <a
-                        href={proj.live || proj.liveDemoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-center rounded-lg transition-all font-medium text-sm flex items-center justify-center gap-2 group/btn shadow-lg shadow-purple-500/30"
-                        title="Live Demo"
-                      >
-                        <span>🚀</span>
-                      </a>
-                    )}
                   </div>
                 </div>
-
-                {/* Corner accent */}
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-indigo-500/20 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )
         )}
       </div>
     </section>
