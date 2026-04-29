@@ -21,8 +21,9 @@ export const uploadResumeToCloudinary = async (req: MulterRequest, res: Response
         {
           folder: "portfolio_resume",
           resource_type: "raw",
-          public_id: "resume",
+          public_id: "resume.pdf",
           overwrite: true,
+          format: "pdf",
         },
         (error: any, uploadResult: any) => {
           if (error) return reject(error);
