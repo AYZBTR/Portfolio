@@ -16,13 +16,6 @@ export const uploadResumeToCloudinary = async (req: MulterRequest, res: Response
             return res.status(400).json({ message: "Only PDF files are allowed" });
         }
 
-        // Verify PDF magic bytes (0x25504446, which equals "%PDF" in ASCII) to prevent MIME-type spoofing
-        if (!file.buffer || file.buffer.length < 4 ||
-            file.buffer[0] !== 0x25 || file.buffer[1] !== 0x50 ||
-            file.buffer[2] !== 0x44 || file.buffer[3] !== 0x46) {
-            return res.status(400).json({ message: "Invalid PDF file" });
-        }
-
         const result: any = await new Promise((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
                 {

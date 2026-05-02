@@ -1,120 +1,96 @@
 import { Request, Response } from "express";
-import mongoose from "mongoose";
 import Project from "../models/project.model";
 
-// Helper: validate MongoDB ObjectId and reject early if malformed
-function isValidId(id: string | string[]): boolean {
-  if (Array.isArray(id)) return false;
-  return mongoose.isValidObjectId(id);
-}
-
 // GET ALL PROJECTS
-export const getProjects = async (req: Request, res: Response) => {
+export const getProjects = async (req: Request, res:  Response) => {
   try {
-    const projects = await Project.find();
+    const projects = await Project. find();
     res.json(projects);
   } catch (error) {
-    console.error("getProjects error:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error });
   }
 };
 
 // GET SINGLE PROJECT BY ID
-export const getProjectById = async (req: Request, res: Response) => {
+export const getProjectById = async (req:  Request, res: Response) => {
   try {
     const { id } = req.params;
-
-    if (!isValidId(id)) {
-      return res.status(400).json({ message: "Invalid project ID" });
-    }
-
+    
+    console.log("🔍 Fetching project with ID:", id);
+    
     const project = await Project.findById(id);
-
+    
     if (!project) {
+      console.log("❌ Project not found");
       return res.status(404).json({ message: "Project not found" });
     }
-
+    
+    console.log("✅ Project found:", project);
     res.json(project);
   } catch (error: any) {
-    console.error("getProjectById error:", error);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Error fetching project:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 // CREATE PROJECT
 export const createProject = async (req: Request, res: Response) => {
   try {
-    const { title, description, tags, imageUrl, images, githubUrl, liveDemoUrl } = req.body;
+    console.log("📝 Creating project with data:", req.body);
+    
+    const { title, description, tags, imageUrl, githubUrl, liveDemoUrl } = req.body;
 
+    // Validation
     if (!title || !description) {
-      return res.status(400).json({ message: "Title and description are required" });
+      console.log("❌ Validation failed:  Missing title or description");
+      return res.status(400).json({ 
+        message: "Title and description are required",
+        received:  { title, description }
+      });
     }
 
     const newProject = new Project({
       title,
       description,
-      tags: tags || [],
-      imageUrl: imageUrl || "",
-      images: images || [],
+      tags:  tags || [],
+      imageUrl:  imageUrl || "",
       githubUrl: githubUrl || "",
       liveDemoUrl: liveDemoUrl || "",
     });
 
+    console.log("💾 Saving project:", newProject);
     await newProject.save();
+    console.log("✅ Project saved successfully");
+    
     res.status(201).json(newProject);
   } catch (err: any) {
-    console.error("createProject error:", err);
-    res.status(500).json({ message: "Failed to create project" });
+    console.error("❌ Create project error:", err);
+    res.status(500).json({ 
+      message: "Failed to create project",
+      error: err.message,
+      details: err 
+    });
   }
 };
 
 // UPDATE PROJECT
 export const updateProject = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-
-    if (!isValidId(id)) {
-      return res.status(400).json({ message: "Invalid project ID" });
-    }
-
-    const { title, description, tags, imageUrl, images, githubUrl, liveDemoUrl } = req.body;
-
-    // Explicitly coerce to expected types so MongoDB operators in req.body are not honoured
-    const safeUpdate = {
-      title: typeof title === "string" ? title : undefined,
-      description: typeof description === "string" ? description : undefined,
-      tags: Array.isArray(tags) ? tags.filter((t: unknown) => typeof t === "string") : undefined,
-      imageUrl: typeof imageUrl === "string" ? imageUrl : undefined,
-      images: Array.isArray(images) ? images.filter((i: unknown) => typeof i === "string") : undefined,
-      githubUrl: typeof githubUrl === "string" ? githubUrl : undefined,
-      liveDemoUrl: typeof liveDemoUrl === "string" ? liveDemoUrl : undefined,
-    };
-
-    const updated = await Project.findByIdAndUpdate(
-      id,
-      safeUpdate,
-      { new: true }
-    );
+    const updated = await Project.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
     res.json(updated);
   } catch (error) {
-    console.error("updateProject error:", error);
-    res.status(400).json({ message: "Update failed" });
+    res.status(400).json({ message: "Update failed", error });
   }
 };
 
 // DELETE PROJECT
-export const deleteProject = async (req: Request, res: Response) => {
+export const deleteProject = async (req:  Request, res: Response) => {
   try {
-    const { id } = req.params;
-
-    if (!isValidId(id)) {
-      return res.status(400).json({ message: "Invalid project ID" });
-    }
-
-    await Project.findByIdAndDelete(id);
+    await Project.findByIdAndDelete(req.params.id);
     res.json({ message: "Project deleted" });
   } catch (error) {
-    console.error("deleteProject error:", error);
-    res.status(400).json({ message: "Delete failed" });
+    res.status(400).json({ message: "Delete failed", error });
   }
 };
