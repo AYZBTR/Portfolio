@@ -30,8 +30,6 @@ export default function SiteSettingsPage() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [resumeUploading, setResumeUploading] = useState(false);
 
-  const token = localStorage.getItem("token") || "";
-
   useEffect(() => {
     const load = async () => {
       try {
@@ -196,7 +194,7 @@ export default function SiteSettingsPage() {
   const uploadFileToServer = async (fileToUpload: File) => {
     setUploading(true);
     try {
-      const url = await uploadImage(fileToUpload, token);
+      const url = await uploadImage(fileToUpload);
       return url;
     } finally {
       setUploading(false);
@@ -235,7 +233,7 @@ export default function SiteSettingsPage() {
     setSuccess(null);
 
     try {
-      const url = await uploadResume(resumeFile, token);
+      const url = await uploadResume(resumeFile);
       setSettings({
         ...settings,
         hero: {
@@ -286,7 +284,7 @@ export default function SiteSettingsPage() {
         }
       }
 
-      const saved = await updateSiteSettings(updatedSettings, token);
+      const saved = await updateSiteSettings(updatedSettings);
       setSettings(saved);
       setSuccess("Settings saved successfully.");
     } catch (err) {

@@ -29,37 +29,22 @@ export default async function authMiddleware(
       return res.status(401).json({ message: "Invalid token" });
     }
 
-    console.log("✅ Token verified, user ID:", decoded.sub);
-
     // Get user details from Clerk
     const user = await clerkClient.users.getUser(decoded.sub);
     const userEmail = user.emailAddresses[0]?.emailAddress;
     const adminEmail = process.env.ADMIN_EMAIL;
 
-    console.log(`👤 User email: ${userEmail}`);
-    console.log(`🔑 Admin email: ${adminEmail}`);
-
     if (userEmail !== adminEmail) {
-      console.log(`❌ Access denied for:  ${userEmail}`);
-      return res.status(403).json({ 
-        message: "Forbidden:  Admin access only",
-        userEmail,
-        adminEmail 
-      });
+      return res.status(403).json({ message: "Forbidden" });
     }
-
-    console.log(`✅ Admin verified:  ${userEmail}`);
     
     // Attach user to request
     (req as any).user = user;
     (req as any).auth = decoded;
     
     next();
-  } catch (error:  any) {
-    console.error("❌ Auth middleware error:", error. message);
-    return res.status(401).json({ 
-      message: "Authentication failed",
-      error: error. message 
-    });
+  } catch (error: any) {
+    console.error("Auth middleware error:", error.message);
+    return res.status(401).json({ message: "Authentication failed" });
   }
 }
