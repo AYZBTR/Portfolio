@@ -16,7 +16,7 @@ export const uploadResumeToCloudinary = async (req: MulterRequest, res: Response
             return res.status(400).json({ message: "Only PDF files are allowed" });
         }
 
-        // Verify PDF magic bytes (%PDF) to prevent MIME-type spoofing
+        // Verify PDF magic bytes (%PDF = 0x25 0x50 0x44 0x46) to prevent MIME-type spoofing
         if (!file.buffer || file.buffer.length < 4 ||
             file.buffer[0] !== 0x25 || file.buffer[1] !== 0x50 ||
             file.buffer[2] !== 0x44 || file.buffer[3] !== 0x46) {

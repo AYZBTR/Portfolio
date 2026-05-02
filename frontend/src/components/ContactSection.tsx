@@ -38,6 +38,12 @@ export default function ContactSection({ contact }: ContactSectionProps) {
     const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
     const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
+    if (!serviceId || !templateId || !publicKey) {
+      console.error("EmailJS environment variables are not configured.");
+      setStatus("error");
+      return;
+    }
+
     try {
       const result = await emailjs.send(
         serviceId,
