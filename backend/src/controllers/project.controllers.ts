@@ -78,9 +78,21 @@ export const updateProject = async (req: Request, res: Response) => {
     }
 
     const { title, description, tags, imageUrl, images, githubUrl, liveDemoUrl } = req.body;
+
+    // Explicitly coerce to expected types so MongoDB operators in req.body are not honoured
+    const safeUpdate = {
+      title: typeof title === "string" ? title : undefined,
+      description: typeof description === "string" ? description : undefined,
+      tags: Array.isArray(tags) ? tags.filter((t: unknown) => typeof t === "string") : undefined,
+      imageUrl: typeof imageUrl === "string" ? imageUrl : undefined,
+      images: Array.isArray(images) ? images.filter((i: unknown) => typeof i === "string") : undefined,
+      githubUrl: typeof githubUrl === "string" ? githubUrl : undefined,
+      liveDemoUrl: typeof liveDemoUrl === "string" ? liveDemoUrl : undefined,
+    };
+
     const updated = await Project.findByIdAndUpdate(
       id,
-      { title, description, tags, imageUrl, images, githubUrl, liveDemoUrl },
+      safeUpdate,
       { new: true }
     );
     res.json(updated);
