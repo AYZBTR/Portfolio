@@ -8,8 +8,6 @@ export default function Dashboard() {
   const [projects, setProjects] = useState<any[]>([]);
   const { signOut } = useClerk();
 
-  const token = localStorage.getItem("token");
-
   // Fetch projects
   const fetchProjects = async () => {
     const res = await api.get("/projects");
@@ -17,9 +15,8 @@ export default function Dashboard() {
   };
 
   const deleteProject = async (id: string) => {
-    await api.delete(`/projects/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // The api interceptor automatically attaches the Clerk token for DELETE requests
+    await api.delete(`/projects/${id}`);
     fetchProjects();
   };
 

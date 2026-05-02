@@ -34,16 +34,20 @@ export default function ContactSection({ contact }: ContactSectionProps) {
     e.preventDefault();
     setStatus("sending");
 
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
     try {
-      const result = await emailjs. send(
-        'service_d87ca08',
-        'template_dczzy9n',
+      const result = await emailjs.send(
+        serviceId,
+        templateId,
         {
           from_name: formData.name,
           from_email: formData.email,
           message: formData.message,
         },
-        'uk-ATivG4wo_aDTl8'
+        publicKey
       );
 
       console.log('✅ Email sent successfully:', result);

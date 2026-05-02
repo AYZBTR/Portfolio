@@ -31,6 +31,6 @@ export const uploadToCloudinary = async (req: MulterRequest, res: Response) => {
     return res.status(200).json({ url: result.secure_url, raw: result });
   } catch (err) {
     console.error("Upload error:", err);
-    return res.status(500).json({ message: "Upload failed", error: err });
+    return res.status(500).json({ message: "Upload failed" });
   }
 };
