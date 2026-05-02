@@ -14,13 +14,13 @@ export interface IProject extends Document {
 
 const ProjectSchema: Schema = new Schema(
   {
-    title: { type: String, required: true, maxlength: 200 },
-    description: { type: String, required: true, maxlength: 5000 },
+    title: { type: String, required: true },
+    description: { type: String, required: true },
     tags: { type: [String], default: [] },
-    imageUrl:  { type: String, default: "", maxlength: 2048 },        // Main featured image
+    imageUrl:  { type: String, default: "" },        // Main featured image
     images: { type: [String], default: [] },        // NEW: Gallery images
-    githubUrl: { type: String, default: "", maxlength: 2048 },
-    liveDemoUrl: { type: String, default: "", maxlength: 2048 },
+    githubUrl: { type: String, default: "" },
+    liveDemoUrl: { type: String, default: "" },
   },
   { timestamps: true }
 );
